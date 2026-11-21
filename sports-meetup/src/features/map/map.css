@@ -1,49 +1,142 @@
+/* The map page fills the whole area between header and tab bar. */
 .venue-map-page {
-  padding: 0 16px;
-  text-align: left;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.venue-map-controls {
+.venue-map-toolbar {
+  flex-shrink: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
 }
 
-.venue-map-controls select,
-.venue-map-controls button {
+.venue-map-toolbar select,
+.venue-map-toolbar button {
   padding: 6px 12px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 999px;
   background: var(--bg);
   color: var(--text-h);
   font: inherit;
+  font-size: 14px;
   cursor: pointer;
 }
 
-.venue-map-hint {
-  margin-bottom: 12px;
-  font-size: 14px;
+.venue-map-toolbar button:hover,
+.venue-map-toolbar select:hover {
+  border-color: var(--accent-border);
 }
 
-/* Fills the screen between the controls and the tab bar. */
+.venue-map-legend {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legend-dot-game {
+  background: #aa3bff;
+}
+
+.legend-dot-venue {
+  margin-left: 8px;
+  background: #9ca3af;
+}
+
+/* Holds the map plus the things floating over it (banner, hint, form). */
+.venue-map-area {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
 .venue-map {
-  height: calc(100svh - 320px);
-  min-height: 360px;
-  border: 1px solid var(--border);
+  height: 100%;
+}
+
+/* Floating layers must sit above Leaflet's own panes (z-index up to 1000). */
+.venue-map-banner,
+.venue-map-hint,
+.venue-map-sheet {
+  position: absolute;
+  z-index: 1000;
+}
+
+.venue-map-banner {
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 32px);
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: #fff4e5;
+  color: #7a4100;
+  font-size: 14px;
+  box-shadow: var(--shadow);
+}
+
+.venue-map-hint {
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(8, 6, 13, 0.75);
+  color: #fff;
+  font-size: 13px;
+  white-space: nowrap;
+  pointer-events: none; /* clicks go through to the map */
+}
+
+.venue-map-sheet {
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  max-width: 420px;
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
   border-radius: 12px;
+  box-shadow: var(--shadow);
 }
 
 /* Popups have a white background in both themes, so use fixed dark text. */
 .venue-map .leaflet-popup-content {
+  margin: 12px 14px;
   color: #08060d;
   font-size: 14px;
 }
 
+.venue-map .leaflet-popup-content p {
+  margin: 0;
+}
+
+.venue-popup-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.venue-popup-borough {
+  color: #6b6375;
+  font-size: 13px;
+}
+
 .venue-popup-games {
   list-style: none;
-  margin: 8px 0;
+  margin: 10px 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -51,31 +144,45 @@
 }
 
 .venue-popup-games .game-card {
-  padding: 8px;
+  padding: 10px;
   gap: 8px;
+  border-color: #e5e4e7;
 }
 
 .venue-popup-games .game-card h2 {
-  font-size: 16px;
+  font-size: 15px;
   color: #08060d;
+}
+
+.venue-popup-games .game-card p {
+  font-size: 13px;
+  color: #6b6375;
 }
 
 .venue-popup-games .game-card button {
   padding: 6px 12px;
+  border-color: #e5e4e7;
   color: #08060d;
 }
 
 .venue-popup-games .game-card button.primary {
+  border-color: #aa3bff;
   color: #fff;
 }
 
 .venue-popup-button {
-  margin-top: 8px;
-  padding: 6px 12px;
-  border: 1px solid #aa3bff;
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: none;
   border-radius: 8px;
   background: #aa3bff;
   color: #fff;
   font: inherit;
+  font-weight: 600;
   cursor: pointer;
+}
+
+.venue-popup-button:hover {
+  background: #9327eb;
 }

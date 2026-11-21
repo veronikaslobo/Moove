@@ -1,7 +1,7 @@
 import 'leaflet/dist/leaflet.css'
 import type { Map as LeafletMap } from 'leaflet'
-import { useState } from 'react'
-import { CircleMarker, MapContainer, Popup, TileLayer } from 'react-leaflet'
+import { useEffect, useState } from 'react'
+import { CircleMarker, MapContainer, Pane, Popup, TileLayer } from 'react-leaflet'
 import CreateGameForm from '../games/CreateGameForm.tsx'
 import GameCard from '../games/GameCard.tsx'
 import type { Game } from '../games/api.ts'
@@ -28,6 +28,16 @@ function VenueMap() {
   const [myPosition, setMyPosition] = useState<[number, number] | null>(null)
   const [venueForNewGame, setVenueForNewGame] = useState<Venue | null>(null)
 
+  // Leaflet measures its box once, when it starts. If the page layout settles
+  // after that (or the window is resized), the map only draws part of itself.
+  // Re-measuring whenever the box changes size fixes it.
+  useEffect(() => {
+    if (!map) return
+    const sizeWatcher = new ResizeObserver(() => map.invalidateSize())
+    sizeWatcher.observe(map.getContainer())
+    return () => sizeWatcher.disconnect()
+  }, [map])
+
   function matchesFilter(sport: string): boolean {
     return sportFilter === 'all' || sport === sportFilter
   }
@@ -36,6 +46,9 @@ function VenueMap() {
   const gamesByVenueId = new Map<string, Game[]>()
   for (const game of games) {
     if (!matchesFilter(game.sport)) continue
+    // A game whose venue isn't in the data file has no place on the map
+    // (e.g. old test games), so it isn't drawn or counted.
+    if (!venuesById.has(game.venue_id)) continue
     const venueGames = gamesByVenueId.get(game.venue_id) ?? []
     venueGames.push(game)
     gamesByVenueId.set(game.venue_id, venueGames)
@@ -67,116 +80,139 @@ function VenueMap() {
     )
   }
 
+  // All problems in one list, shown as a banner over the top of the map.
+  const problems = [
+    venuesFailed && 'Could not load the venues.',
+    hasLoadFailed && 'Could not load games. Is the backend running?',
+    errorMessage,
+  ].filter(Boolean)
+
   return (
     <section className="venue-map-page">
-      <div className="venue-map-controls">
-        <label>
-          Sport{' '}
-          <select value={sportFilter} onChange={(event) => setSportFilter(event.target.value)}>
-            <option value="all">All</option>
-            {sportsOnMap.map((sport) => (
-              <option key={sport.slug} value={sport.slug}>
-                {sport.label}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className="venue-map-toolbar">
+        <select
+          aria-label="Filter by sport"
+          value={sportFilter}
+          onChange={(event) => setSportFilter(event.target.value)}
+        >
+          <option value="all">All sports</option>
+          {sportsOnMap.map((sport) => (
+            <option key={sport.slug} value={sport.slug}>
+              {sport.label}
+            </option>
+          ))}
+        </select>
+
         <button onClick={showMyPosition}>Near me</button>
-        <span>
-          {plainVenues.length + gamesByVenueId.size} places · {gamesByVenueId.size} with games
+
+        <span className="venue-map-legend">
+          <span className="legend-dot legend-dot-game" /> {gamesByVenueId.size} with games
+          <span className="legend-dot legend-dot-venue" /> {plainVenues.length} places
         </span>
       </div>
 
-      {venuesFailed && <p className="game-feed-error">Could not load the venues.</p>}
-      {hasLoadFailed && (
-        <p className="game-feed-error">Could not load games. Is the backend running?</p>
-      )}
-      {errorMessage && <p className="game-feed-error">{errorMessage}</p>}
+      <div className="venue-map-area">
+        {/* preferCanvas: draws the 3,000+ dots on one canvas instead of
+            3,000 separate page elements, which keeps the map smooth. */}
+        <MapContainer
+          className="venue-map"
+          center={MONTREAL_CENTER}
+          zoom={12}
+          preferCanvas
+          ref={setMap}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            maxZoom={19}
+            attribution="&copy; OpenStreetMap contributors | Data: Ville de Montréal (CC-BY 4.0)"
+          />
 
-      {venueForNewGame ? (
-        <CreateGameForm
-          venue={venueForNewGame}
-          onCancel={() => setVenueForNewGame(null)}
-          onCreated={() => {
-            setVenueForNewGame(null)
-            loadGames() // the new game's marker appears right away
-          }}
-        />
-      ) : (
-        <p className="venue-map-hint">Tap a spot on the map to create a game there.</p>
-      )}
-
-      {/* preferCanvas: draws the 3,000+ dots on one canvas instead of
-          3,000 separate page elements, which keeps the map smooth. */}
-      <MapContainer
-        className="venue-map"
-        center={MONTREAL_CENTER}
-        zoom={12}
-        preferCanvas
-        ref={setMap}
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          maxZoom={19}
-          attribution="&copy; OpenStreetMap contributors | Data: Ville de Montréal (CC-BY 4.0)"
-        />
-
-        {plainVenues.map((venue) => (
-          <CircleMarker
-            key={venue.id}
-            center={[venue.lat, venue.lng]}
-            radius={5}
-            pathOptions={VENUE_STYLE}
-          >
-            <Popup>
-              <b>{venue.name}</b>
-              <br />
-              {venue.borough}
-              <br />
-              <button className="venue-popup-button" onClick={() => startNewGame(venue)}>
-                Create a game here
-              </button>
-            </Popup>
-          </CircleMarker>
-        ))}
-
-        {[...gamesByVenueId].map(([venueId, venueGames]) => {
-          const venue = venuesById.get(venueId)
-          if (!venue) return null // game points at a venue not in the data file
-          return (
+          {plainVenues.map((venue) => (
             <CircleMarker
-              key={venueId}
+              key={venue.id}
               center={[venue.lat, venue.lng]}
-              radius={10}
-              pathOptions={GAME_STYLE}
+              radius={5}
+              pathOptions={VENUE_STYLE}
             >
-              <Popup minWidth={260}>
-                <b>{venueDisplayName(venue)}</b>
-                <ul className="venue-popup-games">
-                  {venueGames.map((game) => (
-                    <GameCard
-                      key={game.id}
-                      game={game}
-                      venueName={venueDisplayName(venue)}
-                      onJoin={join}
-                      onLeave={leave}
-                    />
-                  ))}
-                </ul>
+              <Popup>
+                <p className="venue-popup-title">{venue.name}</p>
+                <p className="venue-popup-borough">{venue.borough}</p>
                 <button className="venue-popup-button" onClick={() => startNewGame(venue)}>
-                  Create another game here
+                  Create a game here
                 </button>
               </Popup>
             </CircleMarker>
-          )
-        })}
+          ))}
 
-        {myPosition && (
-          <CircleMarker center={myPosition} radius={8} pathOptions={ME_STYLE}>
-            <Popup>You are here</Popup>
-          </CircleMarker>
+          {/* Games and "you are here" get their own layer above the venues.
+              Without it, the venue dots (which load after the games) would be
+              drawn on top and hide them. 450 = just above Leaflet's default 400. */}
+          <Pane name="games" style={{ zIndex: 450 }}>
+          {[...gamesByVenueId].map(([venueId, venueGames]) => {
+            const venue = venuesById.get(venueId)
+            if (!venue) return null // game points at a venue not in the data file
+            return (
+              <CircleMarker
+                key={venueId}
+                center={[venue.lat, venue.lng]}
+                radius={10}
+                pathOptions={GAME_STYLE}
+              >
+                <Popup minWidth={260}>
+                  <p className="venue-popup-title">{venue.name}</p>
+                  <p className="venue-popup-borough">{venue.borough}</p>
+                  <ul className="venue-popup-games">
+                    {venueGames.map((game) => (
+                      <GameCard
+                        key={game.id}
+                        game={game}
+                        venueName={venueDisplayName(venue)}
+                        onJoin={join}
+                        onLeave={leave}
+                      />
+                    ))}
+                  </ul>
+                  <button className="venue-popup-button" onClick={() => startNewGame(venue)}>
+                    Create another game here
+                  </button>
+                </Popup>
+              </CircleMarker>
+            )
+          })}
+
+          {myPosition && (
+            <CircleMarker center={myPosition} radius={8} pathOptions={ME_STYLE}>
+              <Popup>You are here</Popup>
+            </CircleMarker>
+          )}
+          </Pane>
+        </MapContainer>
+
+        {problems.length > 0 && (
+          <div className="venue-map-banner">
+            {problems.map((problem) => (
+              <p key={String(problem)}>{problem}</p>
+            ))}
+          </div>
         )}
-      </MapContainer>
+
+        {/* The create form slides over the bottom of the map,
+            so you keep seeing where the game will be. */}
+        {venueForNewGame ? (
+          <div className="venue-map-sheet">
+            <CreateGameForm
+              venue={venueForNewGame}
+              onCancel={() => setVenueForNewGame(null)}
+              onCreated={() => {
+                setVenueForNewGame(null)
+                loadGames() // the new game's marker appears right away
+              }}
+            />
+          </div>
+        ) : (
+          <p className="venue-map-hint">Tap a dot to join a game or start one</p>
+        )}
+      </div>
     </section>
   )
 }

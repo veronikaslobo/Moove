@@ -1,13 +1,6 @@
-/* Leaves room at the bottom of every page so the fixed bar never hides content. */
-.app-page {
-  padding-bottom: 88px;
-}
-
+/* Sits at the bottom of the app shell (see AppShell.css), like a phone app. */
 .tab-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  flex-shrink: 0;
   display: flex;
   border-top: 1px solid var(--border);
   background: var(--bg);
@@ -15,17 +8,24 @@
 
 .tab-bar button {
   flex: 1;
-  padding: 16px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 4px 10px;
   border: none;
-  border-top: 3px solid transparent;
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 14px;
+  font-size: 12px;
   cursor: pointer;
 }
 
-.tab-bar button.active {
-  border-top-color: var(--accent);
+.tab-bar button:hover {
   color: var(--text-h);
+}
+
+.tab-bar button.active {
+  color: var(--accent);
+  font-weight: 600;
 }

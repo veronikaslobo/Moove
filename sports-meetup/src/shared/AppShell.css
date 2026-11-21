@@ -1,0 +1,48 @@
+.app-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.app-logo {
+  color: var(--accent);
+  font-size: 14px;
+}
+
+.app-name {
+  color: var(--text-h);
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.app-tagline {
+  font-size: 14px;
+}
+
+/* Takes the space between header and tab bar; scrolls on its own. */
+.app-page {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Text pages (Profile, Community, Settings): a readable centred column. */
+.page-content {
+  width: 640px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 16px 24px;
+  box-sizing: border-box;
+}
+
+/* Small screens: the tagline would crowd the header. */
+@media (max-width: 480px) {
+  .app-tagline {
+    display: none;
+  }
+}
