@@ -57,6 +57,51 @@
   background: #9ca3af;
 }
 
+.legend-dot-walkable {
+  margin-left: 8px;
+  background: #22c55e;
+}
+
+/* "Get there" block inside the popups */
+.get-there {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e5e4e7;
+}
+
+.venue-map .leaflet-popup-content .get-there-title {
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.get-there-distance {
+  margin-left: 4px;
+  color: #15803d;
+  font-weight: 400;
+}
+
+.get-there-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+/* Leaflet colours popup links blue; these are buttons, so override it. */
+.venue-map .leaflet-popup-content .get-there-buttons a {
+  flex: 1;
+  padding: 6px 0;
+  border: 1px solid #15803d;
+  border-radius: 8px;
+  color: #15803d;
+  font-size: 13px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.venue-map .leaflet-popup-content .get-there-buttons a:hover {
+  background: #f0fdf4;
+}
+
 /* Holds the map plus the things floating over it (banner, hint, form). */
 .venue-map-area {
   position: relative;

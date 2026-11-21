@@ -16,6 +16,11 @@ people post pickup games there and join each other's. Built for CodeJam 2026
 - **Live spot counts.** "Spots left" refreshes every 5 seconds, and the last
   spot can never be taken twice: the backend checks it inside a locked
   database transaction.
+- **Get there without a car.** Every popup has Walk, Bike and Transit buttons
+  that open directions in Google Maps. After "Near me", spots within 1 km turn
+  green and popups show the distance and a walking or biking time, so the
+  closest, car-free options stand out. We show no CO₂ numbers on purpose,
+  because we have no reliable source for them.
 - **Community tab** listing every upcoming game, soonest first.
 - **Profile** and **Settings** tabs (in progress).
 
