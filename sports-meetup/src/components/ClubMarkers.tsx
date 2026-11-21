@@ -1,8 +1,40 @@
-import { CircleMarker, Popup } from 'react-leaflet'
-import type { Club } from '../data/clubs.ts'
+import { divIcon } from 'leaflet'
+import { Marker, Popup } from 'react-leaflet'
+import type { Club, ClubSport } from '../data/clubs.ts'
+import './ClubMarkers.css'
 
-// Orange, so clubs never look like the grey venues or purple games.
-const CLUB_STYLE = { color: '#c2410c', fillColor: '#f97316', fillOpacity: 0.9, weight: 2 }
+// One emoji per sport. Record<ClubSport, string> means "an object with
+// exactly one entry for every ClubSport". If someone adds a new sport to
+// ClubSport and forgets it here, TypeScript shows an error.
+const SPORT_EMOJI: Record<ClubSport, string> = {
+  tennis: '🎾',
+  mma: '🥋',
+  dance: '💃',
+  fencing: '🤺',
+  boxing: '🥊',
+}
+
+// A divIcon is a marker made of plain HTML + CSS instead of an image file.
+// (Leaflet's default pin is an image that often fails to load with Vite.)
+function makeIcon(sport: ClubSport) {
+  return divIcon({
+    className: 'club-pin', // styled in ClubMarkers.css
+    html: `<span>${SPORT_EMOJI[sport]}</span>`,
+    iconSize: [34, 34],
+    iconAnchor: [17, 34], // which pixel sits on the exact location: bottom-centre = the pin's tip
+    popupAnchor: [0, -32], // open the popup just above the pin
+  })
+}
+
+// Build the 5 icons ONCE, when the file loads, instead of 24 new icons on
+// every re-render. Same result, less work.
+const ICONS: Record<ClubSport, ReturnType<typeof makeIcon>> = {
+  tennis: makeIcon('tennis'),
+  mma: makeIcon('mma'),
+  dance: makeIcon('dance'),
+  fencing: makeIcon('fencing'),
+  boxing: makeIcon('boxing'),
+}
 
 // Props = the inputs a component receives from its parent.
 // This component gets ONE input: the list of clubs to draw.
@@ -16,11 +48,10 @@ function ClubMarkers({ clubs }: ClubMarkersProps) {
     // an extra box to the page. Needed because a component returns ONE thing.
     <>
       {clubs.map((club) => (
-        <CircleMarker
+        <Marker
           key={club.id} // lets React tell the markers apart when the list changes
-          center={[club.lat, club.lng]}
-          radius={8}
-          pathOptions={CLUB_STYLE}
+          position={[club.lat, club.lng]}
+          icon={ICONS[club.sport]}
         >
           <Popup>
             <p className="venue-popup-title">{club.name}</p>
@@ -36,7 +67,7 @@ function ClubMarkers({ clubs }: ClubMarkersProps) {
               Website
             </a>
           </Popup>
-        </CircleMarker>
+        </Marker>
       ))}
     </>
   )
