@@ -1,0 +1,25 @@
+/* A teardrop pin: a circle with one sharp corner, turned so the
+   sharp corner points down at the club's exact location. */
+.club-pin {
+  background: #f97316; /* orange, same family as before */
+  border: 2px solid #c2410c;
+  border-radius: 50% 50% 50% 0; /* round on 3 corners, sharp bottom-left */
+  transform-origin: center;
+  rotate: -45deg; /* turn the sharp corner to point straight down */
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Turn the emoji back upright (the pin itself is rotated). */
+.club-pin span {
+  rotate: 45deg;
+  font-size: 17px;
+  line-height: 1;
+}
+
+/* Grow a little on hover, so it's clear the pin is clickable. */
+.club-pin:hover {
+  scale: 1.15;
+}

@@ -14,6 +14,9 @@ import { SPORTS } from '../../shared/sports.ts'
 import type { Venue } from '../../shared/venues.ts'
 import { useVenues, venueDisplayName } from '../../shared/venues.ts'
 import './map.css'
+import { clubs } from '../../data/clubs.ts'
+import ClubMarkers from '../../components/ClubMarkers.tsx'
+import ClubFilter from '../../components/ClubFilter.tsx'
 
 const MONTREAL_CENTER: [number, number] = [45.5019, -73.5674]
 
@@ -33,6 +36,9 @@ function VenueMap() {
   // Sports ticked in the filter. Empty = show every sport.
   const [selectedSports, setSelectedSports] = useState<string[]>([])
   const [map, setMap] = useState<LeafletMap | null>(null)
+  const [mode, setMode] = useState<"games" | "trials">("games");
+  const [clubSport, setClubSport] = useState("all");
+  const filteredClubs = clubs.filter(c => clubSport === "all" || c.sport === clubSport);
   const [myPosition, setMyPosition] = useState<[number, number] | null>(null)
   const [venueForNewGame, setVenueForNewGame] = useState<Venue | null>(null)
 
@@ -110,14 +116,23 @@ function VenueMap() {
   return (
     <section className="venue-map-page">
       <div className="venue-map-toolbar">
-        <SportFilter
-          options={sportsOnMap}
-          selected={selectedSports}
-          onChange={setSelectedSports}
-        />
+        <button onClick={() => setMode("games")}>Group games</button>
+        <button onClick={() => setMode("trials")}>Free trials</button>
+        {mode === "games" && (
+          <SportFilter
+            options={sportsOnMap}
+            selected={selectedSports}
+            onChange={setSelectedSports}
+          />
+        )}
+        {mode === "trials" && <ClubFilter value={clubSport} onChange={setClubSport} />}
 
         <button onClick={showMyPosition}>Near me</button>
 
+        {mode === "trials" && (
+          <span className="venue-map-legend">{filteredClubs.length} clubs with free trials</span>
+        )}
+        {mode === "games" && (
         <span className="venue-map-legend">
           <span className="legend-dot legend-dot-game" /> {gamesByVenueId.size} with games
           <span className="legend-dot legend-dot-venue" /> {plainVenues.length} places
@@ -128,6 +143,7 @@ function VenueMap() {
             </>
           )}
         </span>
+        )}
       </div>
 
       <div className="venue-map-area">
@@ -146,7 +162,7 @@ function VenueMap() {
             attribution="&copy; OpenStreetMap contributors | Data: Ville de Montréal (CC-BY 4.0)"
           />
 
-          {plainVenues.map((venue) => (
+          {mode === "games" && plainVenues.map((venue) => (
             <CircleMarker
               key={venue.id}
               center={[venue.lat, venue.lng]}
@@ -170,7 +186,7 @@ function VenueMap() {
           {/* pointerEvents none: the layer itself lets clicks through;
               the purple dots switch them back on for themselves. */}
           <Pane name="games" style={{ zIndex: 450, pointerEvents: 'none' }}>
-          {[...gamesByVenueId].map(([venueId, venueGames]) => {
+          {mode === "games" && [...gamesByVenueId].map(([venueId, venueGames]) => {
             const venue = venuesById.get(venueId)
             if (!venue) return null // game points at a venue not in the data file
             return (
@@ -217,6 +233,10 @@ function VenueMap() {
             </CircleMarker>
           )}
           </Pane>
+
+          {/* Free-trial clubs. Outside the "games" Pane on purpose: that pane
+              lets clicks pass through, so club popups wouldn't open in it. */}
+          {mode === "trials" && <ClubMarkers clubs={filteredClubs} />}
         </MapContainer>
 
         {problems.length > 0 && (
@@ -229,7 +249,9 @@ function VenueMap() {
 
         {/* The create form slides over the bottom of the map,
             so you keep seeing where the game will be. */}
-        {venueForNewGame ? (
+        {mode === "trials" ? (
+          <p className="venue-map-hint">Tap an orange dot to see the free trial</p>
+        ) : venueForNewGame ? (
           <div className="venue-map-sheet">
             <CreateGameForm
               venue={venueForNewGame}
