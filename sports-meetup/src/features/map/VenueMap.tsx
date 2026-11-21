@@ -6,6 +6,7 @@ import { CircleMarker, MapContainer, Pane, Popup, TileLayer } from 'react-leafle
 import CreateGameForm from '../games/CreateGameForm.tsx'
 import GameCard from '../games/GameCard.tsx'
 import GetThere from './GetThere.tsx'
+import SportFilter from './SportFilter.tsx'
 import type { Game } from '../games/api.ts'
 import { useGames } from '../games/useGames.ts'
 import { distanceKm, WALKABLE_KM } from '../../shared/geo.ts'
@@ -29,7 +30,8 @@ function VenueMap() {
   const { venues, venuesById, hasFailed: venuesFailed } = useVenues()
   const { games, hasLoadFailed, errorMessage, loadGames, join, leave, cancel } = useGames()
 
-  const [sportFilter, setSportFilter] = useState('all')
+  // Sports ticked in the filter. Empty = show every sport.
+  const [selectedSports, setSelectedSports] = useState<string[]>([])
   const [map, setMap] = useState<LeafletMap | null>(null)
   const [myPosition, setMyPosition] = useState<[number, number] | null>(null)
   const [venueForNewGame, setVenueForNewGame] = useState<Venue | null>(null)
@@ -51,7 +53,7 @@ function VenueMap() {
   }, [map])
 
   function matchesFilter(sport: string): boolean {
-    return sportFilter === 'all' || sport === sportFilter
+    return selectedSports.length === 0 || selectedSports.includes(sport)
   }
 
   // Group the games by venue: one marker per venue, listing all its games.
@@ -108,18 +110,11 @@ function VenueMap() {
   return (
     <section className="venue-map-page">
       <div className="venue-map-toolbar">
-        <select
-          aria-label="Filter by sport"
-          value={sportFilter}
-          onChange={(event) => setSportFilter(event.target.value)}
-        >
-          <option value="all">All sports</option>
-          {sportsOnMap.map((sport) => (
-            <option key={sport.slug} value={sport.slug}>
-              {sport.label}
-            </option>
-          ))}
-        </select>
+        <SportFilter
+          options={sportsOnMap}
+          selected={selectedSports}
+          onChange={setSelectedSports}
+        />
 
         <button onClick={showMyPosition}>Near me</button>
 
