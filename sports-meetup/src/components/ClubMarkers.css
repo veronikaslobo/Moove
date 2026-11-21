@@ -1,6 +1,16 @@
+/* The marker box itself stays unstyled: Leaflet positions it with a CSS
+   transform, so rotating or scaling it here would move the pin off its spot. */
+.club-pin {
+  background: none;
+  border: none;
+}
+
 /* A teardrop pin: a circle with one sharp corner, turned so the
    sharp corner points down at the club's exact location. */
-.club-pin {
+.club-pin-shape {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
   background: #f97316; /* orange, same family as before */
   border: 2px solid #c2410c;
   border-radius: 50% 50% 50% 0; /* round on 3 corners, sharp bottom-left */
@@ -13,13 +23,13 @@
 }
 
 /* Turn the emoji back upright (the pin itself is rotated). */
-.club-pin span {
+.club-pin-shape span {
   rotate: 45deg;
   font-size: 17px;
   line-height: 1;
 }
 
 /* Grow a little on hover, so it's clear the pin is clickable. */
-.club-pin:hover {
+.club-pin-shape:hover {
   scale: 1.15;
 }

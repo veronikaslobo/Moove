@@ -19,7 +19,10 @@ const SPORT_EMOJI: Record<ClubSport, string> = {
 function makeIcon(sport: ClubSport) {
   return divIcon({
     className: 'club-pin', // styled in ClubMarkers.css
-    html: `<span>${SPORT_EMOJI[sport]}</span>`,
+    // The teardrop shape is an inner element, not the marker itself: Leaflet
+    // moves the marker into place with a CSS transform, and rotating that same
+    // element would rotate the move too, sending pins off to the wrong spot.
+    html: `<div class="club-pin-shape"><span>${SPORT_EMOJI[sport]}</span></div>`,
     iconSize: [34, 34],
     iconAnchor: [17, 34], // which pixel sits on the exact location: bottom-centre = the pin's tip
     popupAnchor: [0, -32], // open the popup just above the pin
