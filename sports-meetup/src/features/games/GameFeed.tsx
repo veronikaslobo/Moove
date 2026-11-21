@@ -60,7 +60,7 @@ function GameFeed({ sports = [] }: GameFeedProps) {
       {errorMessage && <p className="game-feed-error">{errorMessage}</p>}
 
       {games.length === 0 && !errorMessage && (
-        <p>No games coming up. Be the first to create one.</p>
+        <p>No games coming up. Create one from the Map tab.</p>
       )}
 
       <ul>

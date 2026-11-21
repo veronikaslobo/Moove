@@ -43,7 +43,68 @@
   font-style: italic;
 }
 
-.game-card button {
+.create-game {
+  width: 640px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 16px;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.create-game-confirmation {
+  margin-bottom: 12px;
+  color: var(--text-h);
+}
+
+.create-game-button {
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px dashed var(--accent-border);
+  border-radius: 12px;
+  background: var(--accent-bg);
+  color: var(--text-h);
+  font: inherit;
+  cursor: pointer;
+}
+
+.create-game-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.create-game-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.create-game-form input,
+.create-game-form select,
+.create-game-form textarea {
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+}
+
+.create-game-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.game-card button,
+.create-game-actions button {
   flex-shrink: 0;
   padding: 8px 20px;
   border: 1px solid var(--border);
@@ -54,7 +115,8 @@
   cursor: pointer;
 }
 
-.game-card button.primary {
+.game-card button.primary,
+.create-game-actions button.primary {
   border-color: var(--accent);
   background: var(--accent);
   color: #fff;

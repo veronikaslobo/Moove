@@ -1,5 +1,7 @@
 import type { Game } from './api.ts'
 import { getUserId } from './api.ts'
+import { sportLabel } from '../../shared/sports.ts'
+import { venueName } from './placeholderVenues.ts'
 
 type GameCardProps = {
   game: Game
@@ -40,10 +42,9 @@ function GameCard({ game, onJoin, onLeave }: GameCardProps) {
   return (
     <li className="game-card">
       <div className="game-card-info">
-        <h2>{game.sport}</h2>
+        <h2>{sportLabel(game.sport)}</h2>
         <p>{formatStartTime(game.starts_at)}</p>
-        {/* TODO: show the venue name once venues.json exists */}
-        <p>{game.venue_id}</p>
+        <p>{venueName(game.venue_id)}</p>
         <p>
           {game.skill_level === 'all' ? 'All levels' : game.skill_level}
           {' · '}
