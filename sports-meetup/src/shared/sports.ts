@@ -8,7 +8,7 @@
 //            (used for the indoor facilities file). Several OSM values can
 //            point to one slug, e.g. ice_skating and figure_skating → skating.
 //
-// The sports after "hockey" only come from OpenStreetMap, so their keywords
+// The sports after "cricket" only come from OpenStreetMap, so their keywords
 // are empty: that way the city facilities are matched exactly as before.
 export const SPORTS = [
   { slug: 'basketball', label: 'Basketball', keywords: ['basket'], osmTags: ['basketball'] },
@@ -34,10 +34,11 @@ export const SPORTS = [
     osmTags: ['american_football', 'canadian_football'],
   },
   { slug: 'skatepark', label: 'Skatepark', keywords: ['planche', 'skate'], osmTags: ['skateboard'] },
+  // "Anneau / Rond de glace" = outdoor ice loop, skated like a rink.
   {
     slug: 'skating',
     label: 'Skating rink',
-    keywords: ['patinoire'],
+    keywords: ['patinoire', 'glace'],
     osmTags: ['skating', 'ice_skating', 'figure_skating', 'recreational_skating'],
   },
   {
@@ -60,6 +61,25 @@ export const SPORTS = [
     keywords: ['hockey'],
     osmTags: ['hockey', 'ice_hockey', 'ringuette'],
   },
+  { slug: 'bocce', label: 'Bocce', keywords: ['bocce'], osmTags: [] },
+  { slug: 'ping-pong', label: 'Ping-pong', keywords: ['ping-pong'], osmTags: ['table_tennis'] },
+  // Running tracks, plus a few throwing areas ("aire de lancer athlétisme").
+  {
+    slug: 'athletics',
+    label: 'Running track',
+    keywords: ['athlétisme'],
+    osmTags: ['athletics', 'running'],
+  },
+  {
+    slug: 'cross-country-ski',
+    label: 'Cross-country ski',
+    keywords: ['ski de fond'],
+    osmTags: [],
+  },
+  { slug: 'snowshoe', label: 'Snowshoe', keywords: ['raquette'], osmTags: [] },
+  // Also matches the one disc-golf course ("disque-golf").
+  { slug: 'golf', label: 'Golf', keywords: ['golf'], osmTags: ['golf'] },
+  { slug: 'cricket', label: 'Cricket', keywords: ['cricket'], osmTags: ['cricket'] },
 
   // From here on: indoor sports from OpenStreetMap only.
   {
@@ -92,7 +112,6 @@ export const SPORTS = [
   { slug: 'boxing', label: 'Boxing', keywords: [], osmTags: ['boxing', 'kickboxing'] },
   { slug: 'gymnastics', label: 'Gymnastics', keywords: [], osmTags: ['gymnastics', 'trampoline'] },
   { slug: 'dance', label: 'Dance', keywords: [], osmTags: ['dance', 'danse', 'zumba'] },
-  { slug: 'table-tennis', label: 'Table tennis', keywords: [], osmTags: ['table_tennis'] },
   { slug: 'curling', label: 'Curling', keywords: [], osmTags: ['curling'] },
   { slug: 'archery', label: 'Archery', keywords: [], osmTags: ['archery'] },
   // Big centres (CEPSUM, YMCAs…) that host many sports and aren't tagged with one.
@@ -116,7 +135,7 @@ export function sportFromFacilityName(facilityName: string): string | null {
 
 // Returns the sport slugs for an OpenStreetMap "sport" tag, which can list
 // several sports separated by ";" (e.g. "ice_hockey;ice_skating").
-// Unknown values (e.g. "multi", "golf") are dropped, and duplicates removed:
+// Unknown values (e.g. "karting") are dropped, and duplicates removed:
 // "ice_hockey;hockey" gives just ["hockey"].
 export function sportsFromOsmTag(osmSportTag: string): string[] {
   const slugs = new Set<string>()

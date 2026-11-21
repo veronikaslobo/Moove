@@ -5,8 +5,10 @@ import { useEffect, useState } from 'react'
 import { CircleMarker, MapContainer, Pane, Popup, TileLayer } from 'react-leaflet'
 import CreateGameForm from '../games/CreateGameForm.tsx'
 import GameCard from '../games/GameCard.tsx'
+import GetThere from './GetThere.tsx'
 import type { Game } from '../games/api.ts'
 import { useGames } from '../games/useGames.ts'
+import { distanceKm, WALKABLE_KM } from '../../shared/geo.ts'
 import { SPORTS } from '../../shared/sports.ts'
 import type { Venue } from '../../shared/venues.ts'
 import { useVenues, venueDisplayName } from '../../shared/venues.ts'
@@ -19,10 +21,13 @@ const MONTREAL_CENTER: [number, number] = [45.5019, -73.5674]
 const VENUE_STYLE = { color: '#6b6375', fillColor: '#9ca3af', fillOpacity: 0.7, weight: 1 }
 const GAME_STYLE = { color: '#7a1fd1', fillColor: '#aa3bff', fillOpacity: 0.9, weight: 2 }
 const ME_STYLE = { color: '#1d4ed8', fillColor: '#3b82f6', fillOpacity: 0.9, weight: 2 }
+// After "Near me": venues within walking distance turn green, nudging people
+// toward spots they can reach without a car.
+const WALKABLE_STYLE = { color: '#15803d', fillColor: '#22c55e', fillOpacity: 0.9, weight: 1 }
 
 function VenueMap() {
   const { venues, venuesById, hasFailed: venuesFailed } = useVenues()
-  const { games, hasLoadFailed, errorMessage, loadGames, join, leave } = useGames()
+  const { games, hasLoadFailed, errorMessage, loadGames, join, leave, cancel } = useGames()
 
   const [sportFilter, setSportFilter] = useState('all')
   const [map, setMap] = useState<LeafletMap | null>(null)
@@ -65,6 +70,12 @@ function VenueMap() {
   const plainVenues = venues.filter(
     (venue) => venue.sports.some(matchesFilter) && !gamesByVenueId.has(venue.id),
   )
+
+  function isWalkable(venue: Venue): boolean {
+    if (!myPosition) return false // we don't know where the user is yet
+    return distanceKm(myPosition, [venue.lat, venue.lng]) <= WALKABLE_KM
+  }
+  const walkableCount = plainVenues.filter(isWalkable).length
 
   // Only offer sports that actually exist on the map.
   const sportsOnMap = SPORTS.filter((sport) =>
@@ -115,6 +126,12 @@ function VenueMap() {
         <span className="venue-map-legend">
           <span className="legend-dot legend-dot-game" /> {gamesByVenueId.size} with games
           <span className="legend-dot legend-dot-venue" /> {plainVenues.length} places
+          {myPosition && (
+            <>
+              <span className="legend-dot legend-dot-walkable" /> {walkableCount} within{' '}
+              {WALKABLE_KM} km
+            </>
+          )}
         </span>
       </div>
 
@@ -138,12 +155,13 @@ function VenueMap() {
             <CircleMarker
               key={venue.id}
               center={[venue.lat, venue.lng]}
-              radius={5}
-              pathOptions={VENUE_STYLE}
+              radius={isWalkable(venue) ? 7 : 5}
+              pathOptions={isWalkable(venue) ? WALKABLE_STYLE : VENUE_STYLE}
             >
               <Popup>
                 <p className="venue-popup-title">{venue.name}</p>
                 <p className="venue-popup-borough">{venue.borough}</p>
+                <GetThere venue={venue} myPosition={myPosition} />
                 <button className="venue-popup-button" onClick={() => startNewGame(venue)}>
                   Create a game here
                 </button>
@@ -167,7 +185,10 @@ function VenueMap() {
                 radius={10}
                 pathOptions={{ ...GAME_STYLE, renderer: gamesRenderer }}
               >
-                <Popup minWidth={260}>
+                {/* pane="popupPane": without it, the popup would sit inside the
+                    games layer, which lets clicks through, so its buttons
+                    (Join, Get there…) couldn't be clicked. */}
+                <Popup minWidth={260} pane="popupPane">
                   <p className="venue-popup-title">{venue.name}</p>
                   <p className="venue-popup-borough">{venue.borough}</p>
                   <ul className="venue-popup-games">
@@ -178,9 +199,11 @@ function VenueMap() {
                         venueName={venueDisplayName(venue)}
                         onJoin={join}
                         onLeave={leave}
+                        onCancel={cancel}
                       />
                     ))}
                   </ul>
+                  <GetThere venue={venue} myPosition={myPosition} />
                   <button className="venue-popup-button" onClick={() => startNewGame(venue)}>
                     Create another game here
                   </button>
@@ -195,7 +218,7 @@ function VenueMap() {
               radius={8}
               pathOptions={{ ...ME_STYLE, renderer: gamesRenderer }}
             >
-              <Popup>You are here</Popup>
+              <Popup pane="popupPane">You are here</Popup>
             </CircleMarker>
           )}
           </Pane>

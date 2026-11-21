@@ -8,6 +8,7 @@ type GameCardProps = {
   venueName: string
   onJoin: (gameId: number) => void
   onLeave: (gameId: number) => void
+  onCancel: (gameId: number) => void // only shown to the host
 }
 
 const SKILL_LABELS: Record<SkillLevel, string> = {
@@ -26,15 +27,30 @@ function formatStartTime(startsAt: string): string {
   })
 }
 
-function GameCard({ game, venueName, onJoin, onLeave }: GameCardProps) {
+function GameCard({ game, venueName, onJoin, onLeave, onCancel }: GameCardProps) {
   const isHost = game.host_id === getUserId()
   const isFull = game.spots_left === 0
 
+  function confirmCancel() {
+    // Players who joined lose their spot too, so ask before deleting.
+    const otherPlayers = game.total_spots - game.spots_left - 1 // minus the host
+    const warning =
+      otherPlayers > 0
+        ? `Cancel this game? The ${otherPlayers} player(s) who joined will lose their spot.`
+        : 'Cancel this game?'
+    if (window.confirm(warning)) onCancel(game.id)
+  }
+
   // One button, four possible states. Order matters:
-  // the host can't leave their own game, and "Leave" wins over "Full".
+  // the host can't leave their own game (only cancel it),
+  // and "Leave" wins over "Full".
   let actionButton
   if (isHost) {
-    actionButton = <button disabled>You're hosting</button>
+    actionButton = (
+      <button className="danger" onClick={confirmCancel}>
+        Cancel game
+      </button>
+    )
   } else if (game.joined) {
     actionButton = <button onClick={() => onLeave(game.id)}>Leave</button>
   } else if (isFull) {
@@ -59,6 +75,7 @@ function GameCard({ game, venueName, onJoin, onLeave }: GameCardProps) {
           {game.spots_left} of {game.total_spots} spots left
         </p>
         {game.notes && <p className="game-card-notes">{game.notes}</p>}
+        {isHost && <p className="game-card-host">You're hosting</p>}
       </div>
       {actionButton}
     </li>
