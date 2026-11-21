@@ -7,6 +7,7 @@ import CreateGameForm from '../games/CreateGameForm.tsx'
 import GameCard from '../games/GameCard.tsx'
 import GetThere from './GetThere.tsx'
 import SportFilter from './SportFilter.tsx'
+import VenueDetails, { VenueHeading } from './VenueDetails.tsx'
 import type { Game } from '../games/api.ts'
 import { useGames } from '../games/useGames.ts'
 import { distanceKm, WALKABLE_KM } from '../../shared/geo.ts'
@@ -23,7 +24,7 @@ const MONTREAL_CENTER: [number, number] = [45.5019, -73.5674]
 // Plain venue = small grey dot. Venue with upcoming games = big coloured dot,
 // so "what can I join tonight" stands out from the 3,000+ facilities.
 const VENUE_STYLE = { color: '#6b6375', fillColor: '#9ca3af', fillOpacity: 0.7, weight: 1 }
-const GAME_STYLE = { color: '#7a1fd1', fillColor: '#aa3bff', fillOpacity: 0.9, weight: 2 }
+const GAME_STYLE = { color: '#5b21b6', fillColor: '#7c3aed', fillOpacity: 0.9, weight: 2 }
 const ME_STYLE = { color: '#1d4ed8', fillColor: '#3b82f6', fillOpacity: 0.9, weight: 2 }
 // After "Near me": venues within walking distance turn green, nudging people
 // toward spots they can reach without a car.
@@ -116,8 +117,19 @@ function VenueMap() {
   return (
     <section className="venue-map-page">
       <div className="venue-map-toolbar">
-        <button onClick={() => setMode("games")}>Group games</button>
-        <button onClick={() => setMode("trials")}>Free trials</button>
+        {/* The selected mode is purple (see .mode-button.selected in map.css). */}
+        <button
+          className={mode === 'games' ? 'mode-button selected' : 'mode-button'}
+          onClick={() => setMode('games')}
+        >
+          Group games
+        </button>
+        <button
+          className={mode === 'trials' ? 'mode-button selected' : 'mode-button'}
+          onClick={() => setMode('trials')}
+        >
+          Free trials
+        </button>
         {mode === "games" && (
           <SportFilter
             options={sportsOnMap}
@@ -170,8 +182,8 @@ function VenueMap() {
               pathOptions={isWalkable(venue) ? WALKABLE_STYLE : VENUE_STYLE}
             >
               <Popup>
-                <p className="venue-popup-title">{venue.name}</p>
-                <p className="venue-popup-borough">{venue.borough}</p>
+                <VenueHeading venue={venue} />
+                <VenueDetails venue={venue} />
                 <GetThere venue={venue} myPosition={myPosition} />
                 <button className="venue-popup-button" onClick={() => startNewGame(venue)}>
                   Create a game here
@@ -200,8 +212,8 @@ function VenueMap() {
                     games layer, which lets clicks through, so its buttons
                     (Join, Get there…) couldn't be clicked. */}
                 <Popup minWidth={260} pane="popupPane">
-                  <p className="venue-popup-title">{venue.name}</p>
-                  <p className="venue-popup-borough">{venue.borough}</p>
+                  <VenueHeading venue={venue} />
+                  <VenueDetails venue={venue} />
                   <ul className="venue-popup-games">
                     {venueGames.map((game) => (
                       <GameCard

@@ -86,6 +86,9 @@ sports-meetup/
   public/
     outdoor_facilities.json  City of Montréal outdoor facilities
     indoor_facilities.json   Indoor facilities from OpenStreetMap
+    park_names.json          Park code → park name, for outdoor facilities
+  scripts/
+    build-park-names.cjs     Rebuilds park_names.json from the city's parks file
   src/
     App.tsx           App shell: header, current page, tab bar
     pages/            One file per tab (Map, Profile, Community, Settings)
@@ -106,7 +109,9 @@ These are used by every feature, so change them in one place only:
   compares the `slug` (`basketball`, `outdoor-gym`…) and shows the `label`. The
   `keywords` decide which sport a city facility is, from its name, and the
   `osmTags` do the same for indoor places, from their OpenStreetMap `sport` tag.
-- **Venues** have the shape `{ id, name, borough, lat, lng, sports }`. The `id`
+- **Venues** have the shape `{ id, name, borough, lat, lng, sports, details? }`.
+  `details` (address, website, phone, opening hours, wheelchair access, fee)
+  only exists for OpenStreetMap places, and only with the fields they have. The `id`
   is `mtl:` plus the city's facility ID (for example `mtl:049-0030`), and
   games store it as `venue_id`.
 - **Spots left** is never stored. The backend computes it as total spots minus
@@ -136,6 +141,8 @@ Requests that change data need an `X-User-Id` header (see below).
 ## Data and credits
 
 - Outdoor sports facilities: [Ville de Montréal open data](https://donnees.montreal.ca),
+  licence CC-BY 4.0.
+- Park names: [Ville de Montréal, Grands parcs, parcs d'arrondissements et espaces publics](https://donnees.montreal.ca/dataset/grands-parcs-parcs-d-arrondissements-et-espaces-publics),
   licence CC-BY 4.0.
 - Indoor facilities and map tiles: © [OpenStreetMap](https://www.openstreetmap.org/copyright)
   contributors. The facility data is available under the Open Database

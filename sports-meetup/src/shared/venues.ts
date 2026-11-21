@@ -11,6 +11,20 @@ export type Venue = {
   lat: number
   lng: number
   sports: string[] // sport slugs from sports.ts
+  // City venues only: the park the facility is in, e.g. "Parc Jarry".
+  parkName?: string
+  // Extra info, only for OpenStreetMap venues (the city file has none).
+  // Each field is there only when volunteers entered it in OpenStreetMap.
+  details?: VenueDetails
+}
+
+export type VenueDetails = {
+  address?: string // "5300 Boulevard Robert, Montréal"
+  website?: string
+  phone?: string
+  openingHours?: string // OpenStreetMap format: "Mo-Fr 07:00-22:00; Sa-Su 09:00-17:00"
+  wheelchair?: string // "yes", "limited", "designated" or "no"
+  fee?: string // "no" = free entry, "yes" = paid
 }
 
 // Both files are served from /public.
@@ -18,13 +32,18 @@ export type Venue = {
 const CITY_DATA_URL = '/outdoor_facilities.json'
 // Indoor facilities exported from OpenStreetMap with overpass-turbo (ODbL).
 const INDOOR_DATA_URL = '/indoor_facilities.json'
+// Park code → park name, e.g. "0137-000" → "Parc Maurice-Cullen".
+// Made from the city's parks file by scripts/build-park-names.cjs (CC-BY 4.0).
+const PARK_NAMES_URL = '/park_names.json'
 
 type CityFacility = {
-  properties: { ID: string; NOM: string | null; ARROND: string | null }
+  properties: { ID: string; NOM: string | null; ARROND: string | null; INDEX_PARC: string | null }
   geometry: { coordinates: [number, number] } // GeoJSON order: [lng, lat]
 }
 
-function toVenues(facilities: CityFacility[]): Venue[] {
+type ParkNames = Record<string, string>
+
+function toVenues(facilities: CityFacility[], parkNames: ParkNames): Venue[] {
   const venues: Venue[] = []
   for (const facility of facilities) {
     const name = facility.properties.NOM ?? ''
@@ -39,6 +58,8 @@ function toVenues(facilities: CityFacility[]): Venue[] {
       lat,
       lng,
       sports: [sport],
+      // About 6% of facilities have no code, or one missing from the parks file.
+      parkName: parkNames[facility.properties.INDEX_PARC ?? ''],
     })
   }
   return venues
@@ -46,7 +67,22 @@ function toVenues(facilities: CityFacility[]): Venue[] {
 
 type OsmFacility = {
   id: string // e.g. "node/123456" or "way/123456"
-  properties: { name?: string; sport?: string; leisure?: string }
+  // OpenStreetMap tag names contain ":", e.g. "addr:street", so they need quotes.
+  properties: {
+    name?: string
+    sport?: string
+    leisure?: string
+    'addr:housenumber'?: string
+    'addr:street'?: string
+    'addr:city'?: string
+    website?: string
+    'contact:website'?: string
+    phone?: string
+    'contact:phone'?: string
+    opening_hours?: string
+    wheelchair?: string
+    fee?: string
+  }
   geometry:
     | { type: 'Point'; coordinates: [number, number] } // [lng, lat]
     | { type: 'LineString'; coordinates: [number, number][] }
@@ -86,6 +122,24 @@ function toIndoorOrOutdoorSkating(name: string, sports: string[]): string[] {
   return sports.map((slug) => (slug === 'skating' ? 'indoor-skating' : slug))
 }
 
+// Collects the extra info of an OpenStreetMap place. Fields the place
+// doesn't have stay undefined, and the popup simply skips them.
+function osmDetails(tags: OsmFacility['properties']): VenueDetails {
+  // "5300" + "Boulevard Robert" + "Montréal" → "5300 Boulevard Robert, Montréal"
+  const street = [tags['addr:housenumber'], tags['addr:street']].filter(Boolean).join(' ')
+  const address = street ? [street, tags['addr:city']].filter(Boolean).join(', ') : undefined
+
+  return {
+    address,
+    // A few places use the "contact:" version of the tag instead.
+    website: tags.website ?? tags['contact:website'],
+    phone: tags.phone ?? tags['contact:phone'],
+    openingHours: tags.opening_hours,
+    wheelchair: tags.wheelchair,
+    fee: tags.fee,
+  }
+}
+
 function osmToVenues(facilities: OsmFacility[]): Venue[] {
   const venues: Venue[] = []
   for (const facility of facilities) {
@@ -104,7 +158,15 @@ function osmToVenues(facilities: OsmFacility[]): Venue[] {
         ? facility.geometry.coordinates
         : facility.geometry.coordinates[0]
 
-    venues.push({ id: `osm:${facility.id}`, name, borough: '', lat, lng, sports })
+    venues.push({
+      id: `osm:${facility.id}`,
+      name,
+      borough: '',
+      lat,
+      lng,
+      sports,
+      details: osmDetails(facility.properties),
+    })
   }
   return venues
 }
@@ -124,9 +186,18 @@ let venuesRequest: Promise<Venue[]> | null = null
 
 export function loadVenues(): Promise<Venue[]> {
   if (!venuesRequest) {
-    venuesRequest = Promise.all([fetchFeatures(CITY_DATA_URL), fetchFeatures(INDOOR_DATA_URL)])
-      .then(([cityFeatures, indoorFeatures]) => [
-        ...toVenues(cityFeatures as CityFacility[]),
+    // Park names are a bonus: if that file fails, venues still load without them.
+    const parkNamesRequest: Promise<ParkNames> = fetch(PARK_NAMES_URL)
+      .then((response) => (response.ok ? response.json() : {}))
+      .catch(() => ({}))
+
+    venuesRequest = Promise.all([
+      fetchFeatures(CITY_DATA_URL),
+      fetchFeatures(INDOOR_DATA_URL),
+      parkNamesRequest,
+    ])
+      .then(([cityFeatures, indoorFeatures, parkNames]) => [
+        ...toVenues(cityFeatures as CityFacility[], parkNames),
         ...osmToVenues(indoorFeatures as OsmFacility[]),
       ])
       .catch((error) => {
@@ -151,8 +222,10 @@ export function useVenues() {
   return { venues, venuesById, hasFailed }
 }
 
-// City names are often generic ("Tennis"), so the borough tells them apart.
+// City names are often generic ("Tennis"), so the park (or, failing that,
+// the borough) tells them apart: "Tennis, Parc Jarry".
 export function venueDisplayName(venue: Venue | undefined): string {
   if (!venue) return 'Unknown venue'
-  return venue.borough ? `${venue.name}, ${venue.borough}` : venue.name
+  const where = venue.parkName ?? venue.borough
+  return where ? `${venue.name}, ${where}` : venue.name
 }
