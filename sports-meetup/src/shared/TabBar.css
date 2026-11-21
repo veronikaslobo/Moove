@@ -1,0 +1,31 @@
+/* Leaves room at the bottom of every page so the fixed bar never hides content. */
+.app-page {
+  padding-bottom: 88px;
+}
+
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.tab-bar button {
+  flex: 1;
+  padding: 16px 4px;
+  border: none;
+  border-top: 3px solid transparent;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.tab-bar button.active {
+  border-top-color: var(--accent);
+  color: var(--text-h);
+}
