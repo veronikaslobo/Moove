@@ -5,18 +5,26 @@ import ProfilePage from './pages/ProfilePage.tsx'
 import SettingsPage from './pages/SettingsPage.tsx'
 import type { TabId } from './shared/TabBar.tsx'
 import TabBar from './shared/TabBar.tsx'
+import './shared/AppShell.css'
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabId>('map')
 
   return (
     <>
+      <header className="app-header">
+        <span className="app-logo" aria-hidden="true">●</span>
+        <span className="app-name">SportsMap</span>
+        <span className="app-tagline">What can I join tonight?</span>
+      </header>
+
       <main className="app-page">
         {activeTab === 'map' && <MapPage />}
         {activeTab === 'profile' && <ProfilePage />}
         {activeTab === 'community' && <CommunityPage />}
         {activeTab === 'settings' && <SettingsPage />}
       </main>
+
       <TabBar activeTab={activeTab} onSelect={setActiveTab} />
     </>
   )

@@ -1,12 +1,8 @@
 import VenueMap from '../features/map/VenueMap.tsx'
 
+// No page title here: the map gets the whole screen.
 function MapPage() {
-  return (
-    <>
-      <h1>Map</h1>
-      <VenueMap />
-    </>
-  )
+  return <VenueMap />
 }
 
 export default MapPage

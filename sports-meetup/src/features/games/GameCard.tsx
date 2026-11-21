@@ -1,5 +1,5 @@
 import { sportLabel } from '../../shared/sports.ts'
-import type { Game } from './api.ts'
+import type { Game, SkillLevel } from './api.ts'
 import { getUserId } from './api.ts'
 import './games.css'
 
@@ -8,6 +8,13 @@ type GameCardProps = {
   venueName: string
   onJoin: (gameId: number) => void
   onLeave: (gameId: number) => void
+}
+
+const SKILL_LABELS: Record<SkillLevel, string> = {
+  all: 'All levels',
+  beginner: 'Beginner',
+  intermediate: 'Intermediate',
+  advanced: 'Advanced',
 }
 
 function formatStartTime(startsAt: string): string {
@@ -47,7 +54,7 @@ function GameCard({ game, venueName, onJoin, onLeave }: GameCardProps) {
         <p>{formatStartTime(game.starts_at)}</p>
         <p>{venueName}</p>
         <p>
-          {game.skill_level === 'all' ? 'All levels' : game.skill_level}
+          {SKILL_LABELS[game.skill_level]}
           {' · '}
           {game.spots_left} of {game.total_spots} spots left
         </p>
