@@ -7,6 +7,7 @@ import CreateGameForm from '../games/CreateGameForm.tsx'
 import GameCard from '../games/GameCard.tsx'
 import GetThere from './GetThere.tsx'
 import SportFilter from './SportFilter.tsx'
+import VenueDetails, { VenueHeading } from './VenueDetails.tsx'
 import type { Game } from '../games/api.ts'
 import { useGames } from '../games/useGames.ts'
 import { distanceKm, WALKABLE_KM } from '../../shared/geo.ts'
@@ -181,8 +182,8 @@ function VenueMap() {
               pathOptions={isWalkable(venue) ? WALKABLE_STYLE : VENUE_STYLE}
             >
               <Popup>
-                <p className="venue-popup-title">{venue.name}</p>
-                <p className="venue-popup-borough">{venue.borough}</p>
+                <VenueHeading venue={venue} />
+                <VenueDetails venue={venue} />
                 <GetThere venue={venue} myPosition={myPosition} />
                 <button className="venue-popup-button" onClick={() => startNewGame(venue)}>
                   Create a game here
@@ -211,8 +212,8 @@ function VenueMap() {
                     games layer, which lets clicks through, so its buttons
                     (Join, Get there…) couldn't be clicked. */}
                 <Popup minWidth={260} pane="popupPane">
-                  <p className="venue-popup-title">{venue.name}</p>
-                  <p className="venue-popup-borough">{venue.borough}</p>
+                  <VenueHeading venue={venue} />
+                  <VenueDetails venue={venue} />
                   <ul className="venue-popup-games">
                     {venueGames.map((game) => (
                       <GameCard

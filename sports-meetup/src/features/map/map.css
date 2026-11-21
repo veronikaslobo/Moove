@@ -127,6 +127,52 @@
   background: #22c55e;
 }
 
+/* Venue info under the name in the popups (VenueDetails.tsx) */
+.venue-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.venue-map .leaflet-popup-content .venue-details-sports {
+  color: #5b21b6;
+  font-weight: 600;
+}
+
+.venue-details-hours {
+  color: #6b6375;
+}
+
+.venue-details-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.venue-details-badges span {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-size: 12px;
+}
+
+.venue-details-badges span.good {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.venue-details-links {
+  display: flex;
+  gap: 12px;
+}
+
+.venue-map .leaflet-popup-content .venue-details-links a {
+  color: #7c3aed;
+}
+
 /* "Get there" block inside the popups */
 .get-there {
   margin-top: 10px;
