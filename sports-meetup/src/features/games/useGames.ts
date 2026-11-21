@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Game } from './api.ts'
-import { joinGame, leaveGame, listGames } from './api.ts'
+import { deleteGame, joinGame, leaveGame, listGames } from './api.ts'
 
 // How often the games are re-fetched, so a spot taken on someone else's
 // phone shows up here without a manual refresh.
@@ -9,6 +9,7 @@ const REFRESH_EVERY_MS = 5000
 const ERROR_MESSAGES: Record<string, string> = {
   game_full: 'Someone just took the last spot.',
   game_not_found: 'This game no longer exists.',
+  not_host: 'Only the host can cancel this game.',
 }
 
 // Shared by the Community feed and the map: loading, refreshing,
@@ -67,5 +68,6 @@ export function useGames(sports: string[] = []) {
     loadGames,
     join: (gameId: number) => runAction(() => joinGame(gameId)),
     leave: (gameId: number) => runAction(() => leaveGame(gameId)),
+    cancel: (gameId: number) => runAction(() => deleteGame(gameId)),
   }
 }

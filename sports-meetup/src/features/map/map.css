@@ -216,6 +216,11 @@
   color: #08060d;
 }
 
+.venue-popup-games .game-card button.danger {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
 .venue-popup-games .game-card button.primary {
   border-color: #aa3bff;
   color: #fff;

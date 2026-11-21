@@ -8,7 +8,8 @@ type GameFeedProps = {
 }
 
 function GameFeed({ sports = [] }: GameFeedProps) {
-  const { games, isLoading, hasLoadFailed, errorMessage, join, leave } = useGames(sports)
+  const { games, isLoading, hasLoadFailed, errorMessage, join, leave, cancel } =
+    useGames(sports)
   const { venuesById } = useVenues()
 
   if (isLoading) {
@@ -34,6 +35,7 @@ function GameFeed({ sports = [] }: GameFeedProps) {
             venueName={venueDisplayName(venuesById.get(game.venue_id))}
             onJoin={join}
             onLeave={leave}
+            onCancel={cancel}
           />
         ))}
       </ul>
