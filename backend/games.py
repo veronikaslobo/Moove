@@ -3,10 +3,11 @@
 from datetime import datetime, timezone
 from typing import Literal
 
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-from db import connect, write_transaction
+from auth_security import get_current_user_optional, require_user
+from db import connect, to_utc_text, write_transaction
 
 router = APIRouter(prefix="/games", tags=["games"])
 
@@ -18,21 +19,6 @@ class NewGame(BaseModel):
     total_spots: int = Field(ge=2)
     skill_level: Literal["beginner", "intermediate", "advanced", "all"] = "all"
     notes: str | None = None
-
-
-def to_utc_text(moment: datetime) -> str:
-    """Format a date the way the database stores it (see db.py)."""
-    if moment.tzinfo is None:
-        moment = moment.replace(tzinfo=timezone.utc)
-    return moment.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def require_user(x_user_id: str | None) -> str:
-    # Temporary identity: the frontend sends the user's id in an X-User-Id
-    # header. Replace with the real profile/login once that feature exists.
-    if not x_user_id:
-        raise HTTPException(status_code=401, detail="missing_user_id")
-    return x_user_id
 
 
 # spots_left is computed here, never stored.
@@ -52,12 +38,12 @@ order by g.starts_at
 @router.get("")
 def list_games(
     sports: str | None = None,
-    x_user_id: str | None = Header(default=None),
+    user: dict | None = Depends(get_current_user_optional),
 ):
     """Upcoming games, soonest first. Optional filter: ?sports=basketball,soccer"""
     conn = connect()
     now = to_utc_text(datetime.now(timezone.utc))
-    rows = conn.execute(FEED_QUERY, {"user_id": x_user_id, "now": now}).fetchall()
+    rows = conn.execute(FEED_QUERY, {"user_id": user["id"] if user else None, "now": now}).fetchall()
     conn.close()
 
     games = [dict(row) for row in rows]
@@ -72,8 +58,8 @@ def list_games(
 
 
 @router.post("", status_code=201)
-def create_game(game: NewGame, x_user_id: str | None = Header(default=None)):
-    user_id = require_user(x_user_id)
+def create_game(game: NewGame, user: dict = Depends(require_user)):
+    user_id = user["id"]
 
     with write_transaction() as conn:
         cursor = conn.execute(
@@ -104,8 +90,8 @@ def create_game(game: NewGame, x_user_id: str | None = Header(default=None)):
 
 
 @router.post("/{game_id}/join")
-def join_game(game_id: int, x_user_id: str | None = Header(default=None)):
-    user_id = require_user(x_user_id)
+def join_game(game_id: int, user: dict = Depends(require_user)):
+    user_id = user["id"]
 
     with write_transaction() as conn:
         game = conn.execute(
@@ -136,8 +122,8 @@ def join_game(game_id: int, x_user_id: str | None = Header(default=None)):
 
 
 @router.delete("/{game_id}/join")
-def leave_game(game_id: int, x_user_id: str | None = Header(default=None)):
-    user_id = require_user(x_user_id)
+def leave_game(game_id: int, user: dict = Depends(require_user)):
+    user_id = user["id"]
 
     with write_transaction() as conn:
         conn.execute(
@@ -149,9 +135,9 @@ def leave_game(game_id: int, x_user_id: str | None = Header(default=None)):
 
 
 @router.delete("/{game_id}")
-def delete_game(game_id: int, x_user_id: str | None = Header(default=None)):
+def delete_game(game_id: int, user: dict = Depends(require_user)):
     """Cancel a game. Only its host may do this."""
-    user_id = require_user(x_user_id)
+    user_id = user["id"]
 
     with write_transaction() as conn:
         game = conn.execute(
