@@ -10,7 +10,8 @@ import SportFilter from './SportFilter.tsx'
 import VenueDetails, { VenueHeading } from './VenueDetails.tsx'
 import type { Game } from '../games/api.ts'
 import { useGames } from '../games/useGames.ts'
-import { distanceKm, WALKABLE_KM } from '../../shared/geo.ts'
+import { distanceKm, formatSettingDistance } from '../../shared/geo.ts'
+import { usePreferences } from '../../shared/preferences.ts'
 import { SPORTS } from '../../shared/sports.ts'
 import type { Venue } from '../../shared/venues.ts'
 import { useVenues, venueDisplayName } from '../../shared/venues.ts'
@@ -33,6 +34,8 @@ const WALKABLE_STYLE = { color: '#15803d', fillColor: '#22c55e', fillOpacity: 0.
 function VenueMap() {
   const { venues, venuesById, hasFailed: venuesFailed } = useVenues()
   const { games, hasLoadFailed, errorMessage, loadGames, join, leave, cancel } = useGames()
+  // Set in the Settings tab: how close counts as "walkable" (green dots).
+  const { walkableKm } = usePreferences()
 
   // Sports ticked in the filter. Empty = show every sport.
   const [selectedSports, setSelectedSports] = useState<string[]>([])
@@ -82,7 +85,7 @@ function VenueMap() {
 
   function isWalkable(venue: Venue): boolean {
     if (!myPosition) return false // we don't know where the user is yet
-    return distanceKm(myPosition, [venue.lat, venue.lng]) <= WALKABLE_KM
+    return distanceKm(myPosition, [venue.lat, venue.lng]) <= walkableKm
   }
   const walkableCount = plainVenues.filter(isWalkable).length
 
@@ -151,7 +154,7 @@ function VenueMap() {
           {myPosition && (
             <>
               <span className="legend-dot legend-dot-walkable" /> {walkableCount} within{' '}
-              {WALKABLE_KM} km
+              {formatSettingDistance(walkableKm)}
             </>
           )}
         </span>
