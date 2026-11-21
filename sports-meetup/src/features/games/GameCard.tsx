@@ -1,6 +1,6 @@
 import { sportLabel } from '../../shared/sports.ts'
 import type { Game, SkillLevel } from './api.ts'
-import { getUserId } from './api.ts'
+import { useAuth } from '../../auth/useAuth.ts'
 import './games.css'
 
 type GameCardProps = {
@@ -28,7 +28,10 @@ function formatStartTime(startsAt: string): string {
 }
 
 function GameCard({ game, venueName, onJoin, onLeave, onCancel }: GameCardProps) {
-  const isHost = game.host_id === getUserId()
+  //const isHost = game.host_id === getUserId()
+  const { user } = useAuth()
+  const isHost = user !== null && game.host_id === user.id
+
   const isFull = game.spots_left === 0
 
   function confirmCancel() {
@@ -55,6 +58,9 @@ function GameCard({ game, venueName, onJoin, onLeave, onCancel }: GameCardProps)
     actionButton = <button onClick={() => onLeave(game.id)}>Leave</button>
   } else if (isFull) {
     actionButton = <button disabled>Full</button>
+  } else if (!user) {
+    // This handles logged-out visitors
+    actionButton = <button disabled>Log in to join</button>
   } else {
     actionButton = (
       <button className="primary" onClick={() => onJoin(game.id)}>

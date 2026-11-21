@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import AuthProvider from './auth/AuthProvider.tsx'
+import RequireAuth from './auth/RequireAuth.tsx'
+import { useAuth } from './auth/useAuth.ts'
 import CommunityPage from './pages/CommunityPage.tsx'
 import MapPage from './pages/MapPage.tsx'
 import ProfilePage from './pages/ProfilePage.tsx'
@@ -7,8 +10,9 @@ import type { TabId } from './shared/TabBar.tsx'
 import TabBar from './shared/TabBar.tsx'
 import './shared/AppShell.css'
 
-function App() {
+function AppContent() {
   const [activeTab, setActiveTab] = useState<TabId>('map')
+  const { user, logout } = useAuth()
 
   return (
     <>
@@ -16,17 +20,35 @@ function App() {
         <span className="app-logo" aria-hidden="true">●</span>
         <span className="app-name">SportsMap</span>
         <span className="app-tagline">What can I join tonight?</span>
+        {user && (
+          <span className="app-auth">
+            {user.email}
+            <button type="button" onClick={logout}>Log out</button>
+          </span>
+        )}
       </header>
 
       <main className="app-page">
         {activeTab === 'map' && <MapPage />}
-        {activeTab === 'profile' && <ProfilePage />}
-        {activeTab === 'community' && <CommunityPage />}
+        {activeTab === 'profile' && (
+          <RequireAuth feature="your profile"><ProfilePage /></RequireAuth>
+        )}
+        {activeTab === 'community' && (
+          <RequireAuth feature="the community"><CommunityPage /></RequireAuth>
+        )}
         {activeTab === 'settings' && <SettingsPage />}
       </main>
 
       <TabBar activeTab={activeTab} onSelect={setActiveTab} />
     </>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }
 
