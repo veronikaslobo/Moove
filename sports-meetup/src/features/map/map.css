@@ -33,6 +33,13 @@
   border-color: var(--accent-border);
 }
 
+/* "Group games" / "Free trials": the one currently shown is filled purple. */
+.venue-map-toolbar .mode-button.selected {
+  border-color: #7c3aed;
+  background: #7c3aed;
+  color: #fff;
+}
+
 /* Multi-sport filter: a button that opens a checklist over the map. */
 .sport-filter {
   position: relative;
@@ -107,7 +114,7 @@
 }
 
 .legend-dot-game {
-  background: #aa3bff;
+  background: #7c3aed;
 }
 
 .legend-dot-venue {
@@ -280,7 +287,7 @@
 }
 
 .venue-popup-games .game-card button.primary {
-  border-color: #aa3bff;
+  border-color: #7c3aed;
   color: #fff;
 }
 
@@ -290,7 +297,7 @@
   padding: 8px 12px;
   border: none;
   border-radius: 8px;
-  background: #aa3bff;
+  background: #7c3aed;
   color: #fff;
   font: inherit;
   font-weight: 600;
@@ -298,5 +305,5 @@
 }
 
 .venue-popup-button:hover {
-  background: #9327eb;
+  background: #6d28d9;
 }
