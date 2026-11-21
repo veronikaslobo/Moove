@@ -146,3 +146,23 @@ def leave_game(game_id: int, x_user_id: str | None = Header(default=None)):
         )
 
     return {"joined": False}
+
+
+@router.delete("/{game_id}")
+def delete_game(game_id: int, x_user_id: str | None = Header(default=None)):
+    """Cancel a game. Only its host may do this."""
+    user_id = require_user(x_user_id)
+
+    with write_transaction() as conn:
+        game = conn.execute(
+            "select host_id from games where id = ?", (game_id,)
+        ).fetchone()
+        if game is None:
+            raise HTTPException(status_code=404, detail="game_not_found")
+        if game["host_id"] != user_id:
+            raise HTTPException(status_code=403, detail="not_host")
+
+        # The players' rows go too, thanks to "on delete cascade" in db.py.
+        conn.execute("delete from games where id = ?", (game_id,))
+
+    return {"deleted": True}

@@ -116,6 +116,7 @@ These are used by every feature, so change them in one place only:
 | `POST` | `/games` | Create a game; the host becomes its first player |
 | `POST` | `/games/{id}/join` | Join (`409 game_full` if no spot is left) |
 | `DELETE` | `/games/{id}/join` | Leave |
+| `DELETE` | `/games/{id}` | Cancel a game (host only, `403 not_host` otherwise) |
 
 Requests that change data need an `X-User-Id` header (see below).
 

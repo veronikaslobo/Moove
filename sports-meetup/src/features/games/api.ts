@@ -70,6 +70,11 @@ export function joinGame(gameId: number): Promise<{ joined: boolean }> {
   return request(`/games/${gameId}/join`, { method: 'POST' })
 }
 
+// Only the host can do this; the backend refuses anyone else.
+export function deleteGame(gameId: number): Promise<{ deleted: boolean }> {
+  return request(`/games/${gameId}`, { method: 'DELETE' })
+}
+
 export function leaveGame(gameId: number): Promise<{ joined: boolean }> {
   return request(`/games/${gameId}/join`, { method: 'DELETE' })
 }

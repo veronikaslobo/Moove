@@ -27,7 +27,7 @@ const WALKABLE_STYLE = { color: '#15803d', fillColor: '#22c55e', fillOpacity: 0.
 
 function VenueMap() {
   const { venues, venuesById, hasFailed: venuesFailed } = useVenues()
-  const { games, hasLoadFailed, errorMessage, loadGames, join, leave } = useGames()
+  const { games, hasLoadFailed, errorMessage, loadGames, join, leave, cancel } = useGames()
 
   const [sportFilter, setSportFilter] = useState('all')
   const [map, setMap] = useState<LeafletMap | null>(null)
@@ -199,6 +199,7 @@ function VenueMap() {
                         venueName={venueDisplayName(venue)}
                         onJoin={join}
                         onLeave={leave}
+                        onCancel={cancel}
                       />
                     ))}
                   </ul>
