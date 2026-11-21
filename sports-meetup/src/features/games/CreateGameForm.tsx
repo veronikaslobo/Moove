@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { SPORTS } from '../../shared/sports.ts'
+import type { Venue } from '../../shared/venues.ts'
+import { venueDisplayName } from '../../shared/venues.ts'
 import type { SkillLevel } from './api.ts'
 import { createGame } from './api.ts'
-import { PLACEHOLDER_VENUES } from './placeholderVenues.ts'
+import './games.css'
 
 type CreateGameFormProps = {
+  venue: Venue // chosen on the map, so the form doesn't ask "where"
   onCreated: () => void
   onCancel: () => void
 }
@@ -16,10 +19,10 @@ const SKILL_LEVELS: { value: SkillLevel; label: string }[] = [
   { value: 'advanced', label: 'Advanced' },
 ]
 
-function CreateGameForm({ onCreated, onCancel }: CreateGameFormProps) {
-  const [sport, setSport] = useState(SPORTS[0].slug)
+function CreateGameForm({ venue, onCreated, onCancel }: CreateGameFormProps) {
+  // Start on the venue's own sport: a tennis court almost always hosts tennis.
+  const [sport, setSport] = useState(venue.sports[0] ?? SPORTS[0].slug)
   const [startsAtLocal, setStartsAtLocal] = useState('')
-  const [venueId, setVenueId] = useState(PLACEHOLDER_VENUES[0].id)
   const [totalSpots, setTotalSpots] = useState(10)
   const [skillLevel, setSkillLevel] = useState<SkillLevel>('all')
   const [notes, setNotes] = useState('')
@@ -42,7 +45,7 @@ function CreateGameForm({ onCreated, onCancel }: CreateGameFormProps) {
       await createGame({
         sport,
         starts_at: startsAt.toISOString(),
-        venue_id: venueId,
+        venue_id: venue.id,
         total_spots: totalSpots,
         skill_level: skillLevel,
         notes: notes.trim() || null,
@@ -62,6 +65,8 @@ function CreateGameForm({ onCreated, onCancel }: CreateGameFormProps) {
         submitGame()
       }}
     >
+      <h2>New game at {venueDisplayName(venue)}</h2>
+
       <label>
         Sport
         <select value={sport} onChange={(event) => setSport(event.target.value)}>
@@ -81,17 +86,6 @@ function CreateGameForm({ onCreated, onCancel }: CreateGameFormProps) {
           value={startsAtLocal}
           onChange={(event) => setStartsAtLocal(event.target.value)}
         />
-      </label>
-
-      <label>
-        Where
-        <select value={venueId} onChange={(event) => setVenueId(event.target.value)}>
-          {PLACEHOLDER_VENUES.map((venue) => (
-            <option key={venue.id} value={venue.id}>
-              {venue.name}
-            </option>
-          ))}
-        </select>
       </label>
 
       <label>

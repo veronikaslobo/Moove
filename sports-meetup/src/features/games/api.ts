@@ -10,7 +10,7 @@ export type Game = {
   host_id: string
   sport: string
   starts_at: string // UTC, e.g. 2026-11-21T19:30:00Z
-  venue_id: string
+  venue_id: string // e.g. "mtl:049-0030", see shared/venues.ts
   total_spots: number
   skill_level: SkillLevel
   notes: string | null

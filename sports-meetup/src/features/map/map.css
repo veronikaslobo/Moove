@@ -1,0 +1,81 @@
+.venue-map-page {
+  padding: 0 16px;
+  text-align: left;
+}
+
+.venue-map-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.venue-map-controls select,
+.venue-map-controls button {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  cursor: pointer;
+}
+
+.venue-map-hint {
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+/* Fills the screen between the controls and the tab bar. */
+.venue-map {
+  height: calc(100svh - 320px);
+  min-height: 360px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+/* Popups have a white background in both themes, so use fixed dark text. */
+.venue-map .leaflet-popup-content {
+  color: #08060d;
+  font-size: 14px;
+}
+
+.venue-popup-games {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.venue-popup-games .game-card {
+  padding: 8px;
+  gap: 8px;
+}
+
+.venue-popup-games .game-card h2 {
+  font-size: 16px;
+  color: #08060d;
+}
+
+.venue-popup-games .game-card button {
+  padding: 6px 12px;
+  color: #08060d;
+}
+
+.venue-popup-games .game-card button.primary {
+  color: #fff;
+}
+
+.venue-popup-button {
+  margin-top: 8px;
+  padding: 6px 12px;
+  border: 1px solid #aa3bff;
+  border-radius: 8px;
+  background: #aa3bff;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}

@@ -1,10 +1,11 @@
+import { sportLabel } from '../../shared/sports.ts'
 import type { Game } from './api.ts'
 import { getUserId } from './api.ts'
-import { sportLabel } from '../../shared/sports.ts'
-import { venueName } from './placeholderVenues.ts'
+import './games.css'
 
 type GameCardProps = {
   game: Game
+  venueName: string
   onJoin: (gameId: number) => void
   onLeave: (gameId: number) => void
 }
@@ -18,7 +19,7 @@ function formatStartTime(startsAt: string): string {
   })
 }
 
-function GameCard({ game, onJoin, onLeave }: GameCardProps) {
+function GameCard({ game, venueName, onJoin, onLeave }: GameCardProps) {
   const isHost = game.host_id === getUserId()
   const isFull = game.spots_left === 0
 
@@ -44,7 +45,7 @@ function GameCard({ game, onJoin, onLeave }: GameCardProps) {
       <div className="game-card-info">
         <h2>{sportLabel(game.sport)}</h2>
         <p>{formatStartTime(game.starts_at)}</p>
-        <p>{venueName(game.venue_id)}</p>
+        <p>{venueName}</p>
         <p>
           {game.skill_level === 'all' ? 'All levels' : game.skill_level}
           {' · '}

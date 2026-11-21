@@ -9,14 +9,14 @@ from db import connect, init_db
 from games import to_utc_text
 
 # (sport, starts in N hours, venue_id, total_spots, skill_level, notes, extra players)
-# TODO: replace the venue ids with real ones from venues.json,
-# and the sports with the slugs from the shared sports list.
+# Venue ids are "mtl:" + the ID column of terrain_sport_ext.json
+# (City of Montréal facilities), the same ids the map uses.
 FAKE_GAMES = [
-    ("basketball", 2, "osm:way/REPLACE_1", 10, "all", "Bring a ball", ["user-2", "user-3"]),
-    ("soccer", 3, "osm:way/REPLACE_2", 14, "intermediate", "7v7", ["user-2"]),
-    ("volleyball", 4, "osm:way/REPLACE_3", 12, "beginner", None, []),
-    ("tennis", 5, "osm:way/REPLACE_4", 2, "advanced", "Singles, one spot left", []),
-    ("basketball", 26, "osm:way/REPLACE_1", 2, "all", "Already full", ["user-2"]),
+    ("basketball", 2, "mtl:049-0030", 10, "all", "Bring a ball", ["user-2", "user-3"]),
+    ("soccer", 3, "mtl:073-0003", 14, "intermediate", "7v7", ["user-2"]),
+    ("volleyball", 4, "mtl:089-0063", 12, "beginner", "Beach volleyball", []),
+    ("tennis", 5, "mtl:081-0064", 2, "advanced", "Singles, one spot left", []),
+    ("basketball", 26, "mtl:049-0030", 2, "all", "Already full", ["user-2"]),
 ]
 
 HOST_ID = "user-1"
