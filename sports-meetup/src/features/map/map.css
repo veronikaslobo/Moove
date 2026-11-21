@@ -68,6 +68,12 @@
   height: 100%;
 }
 
+/* The games layer lets clicks through (see VenueMap.tsx), so the purple
+   dots must turn clicks back on for themselves. */
+.venue-map .leaflet-games-pane .leaflet-interactive {
+  pointer-events: auto;
+}
+
 /* Floating layers must sit above Leaflet's own panes (z-index up to 1000). */
 .venue-map-banner,
 .venue-map-hint,

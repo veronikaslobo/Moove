@@ -1,5 +1,6 @@
 import 'leaflet/dist/leaflet.css'
 import type { Map as LeafletMap } from 'leaflet'
+import { svg } from 'leaflet'
 import { useEffect, useState } from 'react'
 import { CircleMarker, MapContainer, Pane, Popup, TileLayer } from 'react-leaflet'
 import CreateGameForm from '../games/CreateGameForm.tsx'
@@ -27,6 +28,12 @@ function VenueMap() {
   const [map, setMap] = useState<LeafletMap | null>(null)
   const [myPosition, setMyPosition] = useState<[number, number] | null>(null)
   const [venueForNewGame, setVenueForNewGame] = useState<Venue | null>(null)
+
+  // The games layer is drawn as SVG (one element per dot), not as a canvas.
+  // A canvas is one big transparent sheet over the whole map that would
+  // swallow every click, so the grey venue dots underneath couldn't be tapped.
+  // With SVG, only the purple dots themselves catch clicks.
+  const [gamesRenderer] = useState(() => svg({ pane: 'games' }))
 
   // Leaflet measures its box once, when it starts. If the page layout settles
   // after that (or the window is resized), the map only draws part of itself.
@@ -147,7 +154,9 @@ function VenueMap() {
           {/* Games and "you are here" get their own layer above the venues.
               Without it, the venue dots (which load after the games) would be
               drawn on top and hide them. 450 = just above Leaflet's default 400. */}
-          <Pane name="games" style={{ zIndex: 450 }}>
+          {/* pointerEvents none: the layer itself lets clicks through;
+              the purple dots switch them back on for themselves. */}
+          <Pane name="games" style={{ zIndex: 450, pointerEvents: 'none' }}>
           {[...gamesByVenueId].map(([venueId, venueGames]) => {
             const venue = venuesById.get(venueId)
             if (!venue) return null // game points at a venue not in the data file
@@ -156,7 +165,7 @@ function VenueMap() {
                 key={venueId}
                 center={[venue.lat, venue.lng]}
                 radius={10}
-                pathOptions={GAME_STYLE}
+                pathOptions={{ ...GAME_STYLE, renderer: gamesRenderer }}
               >
                 <Popup minWidth={260}>
                   <p className="venue-popup-title">{venue.name}</p>
@@ -181,7 +190,11 @@ function VenueMap() {
           })}
 
           {myPosition && (
-            <CircleMarker center={myPosition} radius={8} pathOptions={ME_STYLE}>
+            <CircleMarker
+              center={myPosition}
+              radius={8}
+              pathOptions={{ ...ME_STYLE, renderer: gamesRenderer }}
+            >
               <Popup>You are here</Popup>
             </CircleMarker>
           )}
