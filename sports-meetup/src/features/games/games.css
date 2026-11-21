@@ -75,6 +75,13 @@
   font: inherit;
 }
 
+/* Date, hour and minutes side by side; the date field gets the most room. */
+.create-game-when {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 8px;
+}
+
 .create-game-actions {
   display: flex;
   justify-content: flex-end;

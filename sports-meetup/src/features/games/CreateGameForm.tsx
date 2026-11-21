@@ -19,10 +19,37 @@ const SKILL_LEVELS: { value: SkillLevel; label: string }[] = [
   { value: 'advanced', label: 'Advanced' },
 ]
 
+// Games start on 5-minute marks (7:00, 7:05, 7:10…).
+const MINUTE_STEP = 5
+const HOURS = Array.from({ length: 24 }, (_, hour) => hour)
+const MINUTES = Array.from({ length: 60 / MINUTE_STEP }, (_, index) => index * MINUTE_STEP)
+
+function hourLabel(hour: number): string {
+  return `${hour % 12 || 12} ${hour < 12 ? 'a.m.' : 'p.m.'}`
+}
+
+// "2026-11-21", in the user's own time zone (what <input type="date"> uses).
+function toDateInputValue(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${date.getFullYear()}-${month}-${day}`
+}
+
+// Default start: one hour from now, rounded up to the next 5-minute mark.
+function defaultStart(): Date {
+  const start = new Date(Date.now() + 60 * 60 * 1000)
+  const roundedMinutes = Math.ceil(start.getMinutes() / MINUTE_STEP) * MINUTE_STEP
+  start.setMinutes(roundedMinutes, 0, 0) // 60 rolls over to the next hour by itself
+  return start
+}
+
 function CreateGameForm({ venue, onCreated, onCancel }: CreateGameFormProps) {
   // Start on the venue's own sport: a tennis court almost always hosts tennis.
   const [sport, setSport] = useState(venue.sports[0] ?? SPORTS[0].slug)
-  const [startsAtLocal, setStartsAtLocal] = useState('')
+  const [initialStart] = useState(defaultStart)
+  const [date, setDate] = useState(toDateInputValue(initialStart))
+  const [hour, setHour] = useState(initialStart.getHours())
+  const [minute, setMinute] = useState(initialStart.getMinutes())
   const [totalSpots, setTotalSpots] = useState(10)
   const [skillLevel, setSkillLevel] = useState<SkillLevel>('all')
   const [notes, setNotes] = useState('')
@@ -31,9 +58,10 @@ function CreateGameForm({ venue, onCreated, onCancel }: CreateGameFormProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   async function submitGame() {
-    // The input gives local time ("2026-11-21T19:30");
-    // the backend wants UTC, which toISOString() produces.
-    const startsAt = new Date(startsAtLocal)
+    // Build the start in the user's local time from the three fields;
+    // toISOString() below converts it to UTC for the backend.
+    const [year, month, day] = date.split('-').map(Number)
+    const startsAt = new Date(year, month - 1, day, hour, minute)
     if (startsAt <= new Date()) {
       setErrorMessage('Pick a time in the future.')
       return
@@ -78,15 +106,38 @@ function CreateGameForm({ venue, onCreated, onCancel }: CreateGameFormProps) {
         </select>
       </label>
 
-      <label>
-        When
-        <input
-          type="datetime-local"
-          required
-          value={startsAtLocal}
-          onChange={(event) => setStartsAtLocal(event.target.value)}
-        />
-      </label>
+      <div className="create-game-when">
+        <label>
+          Date
+          <input
+            type="date"
+            required
+            min={toDateInputValue(new Date())}
+            value={date}
+            onChange={(event) => setDate(event.target.value)}
+          />
+        </label>
+        <label>
+          Hour
+          <select value={hour} onChange={(event) => setHour(Number(event.target.value))}>
+            {HOURS.map((option) => (
+              <option key={option} value={option}>
+                {hourLabel(option)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Minutes
+          <select value={minute} onChange={(event) => setMinute(Number(event.target.value))}>
+            {MINUTES.map((option) => (
+              <option key={option} value={option}>
+                {String(option).padStart(2, '0')}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
 
       <label>
         Total spots (including you)
