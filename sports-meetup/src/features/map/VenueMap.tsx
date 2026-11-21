@@ -6,6 +6,8 @@ import { CircleMarker, MapContainer, Pane, Popup, TileLayer } from 'react-leafle
 import CreateGameForm from '../games/CreateGameForm.tsx'
 import GameCard from '../games/GameCard.tsx'
 import GetThere from './GetThere.tsx'
+import SportFilter from './SportFilter.tsx'
+import VenueDetails, { VenueHeading } from './VenueDetails.tsx'
 import type { Game } from '../games/api.ts'
 import { useGames } from '../games/useGames.ts'
 import { distanceKm, WALKABLE_KM } from '../../shared/geo.ts'
@@ -13,13 +15,16 @@ import { SPORTS } from '../../shared/sports.ts'
 import type { Venue } from '../../shared/venues.ts'
 import { useVenues, venueDisplayName } from '../../shared/venues.ts'
 import './map.css'
+import { clubs } from '../../data/clubs.ts'
+import ClubMarkers from '../../components/ClubMarkers.tsx'
+import ClubFilter from '../../components/ClubFilter.tsx'
 
 const MONTREAL_CENTER: [number, number] = [45.5019, -73.5674]
 
 // Plain venue = small grey dot. Venue with upcoming games = big coloured dot,
 // so "what can I join tonight" stands out from the 3,000+ facilities.
 const VENUE_STYLE = { color: '#6b6375', fillColor: '#9ca3af', fillOpacity: 0.7, weight: 1 }
-const GAME_STYLE = { color: '#7a1fd1', fillColor: '#aa3bff', fillOpacity: 0.9, weight: 2 }
+const GAME_STYLE = { color: '#5b21b6', fillColor: '#7c3aed', fillOpacity: 0.9, weight: 2 }
 const ME_STYLE = { color: '#1d4ed8', fillColor: '#3b82f6', fillOpacity: 0.9, weight: 2 }
 // After "Near me": venues within walking distance turn green, nudging people
 // toward spots they can reach without a car.
@@ -29,8 +34,12 @@ function VenueMap() {
   const { venues, venuesById, hasFailed: venuesFailed } = useVenues()
   const { games, hasLoadFailed, errorMessage, loadGames, join, leave, cancel } = useGames()
 
-  const [sportFilter, setSportFilter] = useState('all')
+  // Sports ticked in the filter. Empty = show every sport.
+  const [selectedSports, setSelectedSports] = useState<string[]>([])
   const [map, setMap] = useState<LeafletMap | null>(null)
+  const [mode, setMode] = useState<"games" | "trials">("games");
+  const [clubSport, setClubSport] = useState("all");
+  const filteredClubs = clubs.filter(c => clubSport === "all" || c.sport === clubSport);
   const [myPosition, setMyPosition] = useState<[number, number] | null>(null)
   const [venueForNewGame, setVenueForNewGame] = useState<Venue | null>(null)
 
@@ -51,7 +60,7 @@ function VenueMap() {
   }, [map])
 
   function matchesFilter(sport: string): boolean {
-    return sportFilter === 'all' || sport === sportFilter
+    return selectedSports.length === 0 || selectedSports.includes(sport)
   }
 
   // Group the games by venue: one marker per venue, listing all its games.
@@ -108,21 +117,34 @@ function VenueMap() {
   return (
     <section className="venue-map-page">
       <div className="venue-map-toolbar">
-        <select
-          aria-label="Filter by sport"
-          value={sportFilter}
-          onChange={(event) => setSportFilter(event.target.value)}
+        {/* The selected mode is purple (see .mode-button.selected in map.css). */}
+        <button
+          className={mode === 'games' ? 'mode-button selected' : 'mode-button'}
+          onClick={() => setMode('games')}
         >
-          <option value="all">All sports</option>
-          {sportsOnMap.map((sport) => (
-            <option key={sport.slug} value={sport.slug}>
-              {sport.label}
-            </option>
-          ))}
-        </select>
+          Group games
+        </button>
+        <button
+          className={mode === 'trials' ? 'mode-button selected' : 'mode-button'}
+          onClick={() => setMode('trials')}
+        >
+          Free trials
+        </button>
+        {mode === "games" && (
+          <SportFilter
+            options={sportsOnMap}
+            selected={selectedSports}
+            onChange={setSelectedSports}
+          />
+        )}
+        {mode === "trials" && <ClubFilter value={clubSport} onChange={setClubSport} />}
 
         <button onClick={showMyPosition}>Near me</button>
 
+        {mode === "trials" && (
+          <span className="venue-map-legend">{filteredClubs.length} clubs with free trials</span>
+        )}
+        {mode === "games" && (
         <span className="venue-map-legend">
           <span className="legend-dot legend-dot-game" /> {gamesByVenueId.size} with games
           <span className="legend-dot legend-dot-venue" /> {plainVenues.length} places
@@ -133,6 +155,7 @@ function VenueMap() {
             </>
           )}
         </span>
+        )}
       </div>
 
       <div className="venue-map-area">
@@ -151,7 +174,7 @@ function VenueMap() {
             attribution="&copy; OpenStreetMap contributors | Data: Ville de Montréal (CC-BY 4.0)"
           />
 
-          {plainVenues.map((venue) => (
+          {mode === "games" && plainVenues.map((venue) => (
             <CircleMarker
               key={venue.id}
               center={[venue.lat, venue.lng]}
@@ -159,8 +182,8 @@ function VenueMap() {
               pathOptions={isWalkable(venue) ? WALKABLE_STYLE : VENUE_STYLE}
             >
               <Popup>
-                <p className="venue-popup-title">{venue.name}</p>
-                <p className="venue-popup-borough">{venue.borough}</p>
+                <VenueHeading venue={venue} />
+                <VenueDetails venue={venue} />
                 <GetThere venue={venue} myPosition={myPosition} />
                 <button className="venue-popup-button" onClick={() => startNewGame(venue)}>
                   Create a game here
@@ -175,7 +198,7 @@ function VenueMap() {
           {/* pointerEvents none: the layer itself lets clicks through;
               the purple dots switch them back on for themselves. */}
           <Pane name="games" style={{ zIndex: 450, pointerEvents: 'none' }}>
-          {[...gamesByVenueId].map(([venueId, venueGames]) => {
+          {mode === "games" && [...gamesByVenueId].map(([venueId, venueGames]) => {
             const venue = venuesById.get(venueId)
             if (!venue) return null // game points at a venue not in the data file
             return (
@@ -189,8 +212,8 @@ function VenueMap() {
                     games layer, which lets clicks through, so its buttons
                     (Join, Get there…) couldn't be clicked. */}
                 <Popup minWidth={260} pane="popupPane">
-                  <p className="venue-popup-title">{venue.name}</p>
-                  <p className="venue-popup-borough">{venue.borough}</p>
+                  <VenueHeading venue={venue} />
+                  <VenueDetails venue={venue} />
                   <ul className="venue-popup-games">
                     {venueGames.map((game) => (
                       <GameCard
@@ -222,6 +245,10 @@ function VenueMap() {
             </CircleMarker>
           )}
           </Pane>
+
+          {/* Free-trial clubs. Outside the "games" Pane on purpose: that pane
+              lets clicks pass through, so club popups wouldn't open in it. */}
+          {mode === "trials" && <ClubMarkers clubs={filteredClubs} />}
         </MapContainer>
 
         {problems.length > 0 && (
@@ -234,7 +261,9 @@ function VenueMap() {
 
         {/* The create form slides over the bottom of the map,
             so you keep seeing where the game will be. */}
-        {venueForNewGame ? (
+        {mode === "trials" ? (
+          <p className="venue-map-hint">Tap an orange dot to see the free trial</p>
+        ) : venueForNewGame ? (
           <div className="venue-map-sheet">
             <CreateGameForm
               venue={venueForNewGame}

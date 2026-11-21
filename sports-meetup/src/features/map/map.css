@@ -33,6 +33,71 @@
   border-color: var(--accent-border);
 }
 
+/* "Group games" / "Free trials": the one currently shown is filled purple. */
+.venue-map-toolbar .mode-button.selected {
+  border-color: #7c3aed;
+  background: #7c3aed;
+  color: #fff;
+}
+
+/* Multi-sport filter: a button that opens a checklist over the map. */
+.sport-filter {
+  position: relative;
+}
+
+.venue-map-toolbar .sport-filter-button.active {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.sport-filter-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1100; /* above the map and its floating layers (1000) */
+  width: 300px;
+  max-width: calc(100vw - 32px);
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+}
+
+/* Two columns of checkboxes; scrolls if the list grows. */
+.sport-filter-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  max-height: 50svh;
+  overflow-y: auto;
+}
+
+.sport-filter-list label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-h);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.sport-filter-list input {
+  accent-color: var(--accent);
+}
+
+.sport-filter-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.venue-map-toolbar .sport-filter-actions button.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
 .venue-map-legend {
   margin-left: auto;
   display: flex;
@@ -49,7 +114,7 @@
 }
 
 .legend-dot-game {
-  background: #aa3bff;
+  background: #7c3aed;
 }
 
 .legend-dot-venue {
@@ -60,6 +125,52 @@
 .legend-dot-walkable {
   margin-left: 8px;
   background: #22c55e;
+}
+
+/* Venue info under the name in the popups (VenueDetails.tsx) */
+.venue-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.venue-map .leaflet-popup-content .venue-details-sports {
+  color: #5b21b6;
+  font-weight: 600;
+}
+
+.venue-details-hours {
+  color: #6b6375;
+}
+
+.venue-details-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.venue-details-badges span {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-size: 12px;
+}
+
+.venue-details-badges span.good {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.venue-details-links {
+  display: flex;
+  gap: 12px;
+}
+
+.venue-map .leaflet-popup-content .venue-details-links a {
+  color: #7c3aed;
 }
 
 /* "Get there" block inside the popups */
@@ -222,7 +333,7 @@
 }
 
 .venue-popup-games .game-card button.primary {
-  border-color: #aa3bff;
+  border-color: #7c3aed;
   color: #fff;
 }
 
@@ -232,7 +343,7 @@
   padding: 8px 12px;
   border: none;
   border-radius: 8px;
-  background: #aa3bff;
+  background: #7c3aed;
   color: #fff;
   font: inherit;
   font-weight: 600;
@@ -240,5 +351,5 @@
 }
 
 .venue-popup-button:hover {
-  background: #9327eb;
+  background: #6d28d9;
 }

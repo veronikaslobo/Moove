@@ -8,8 +8,10 @@ people post pickup games there and join each other's. Built for CodeJam 2026
 
 ## Features
 
-- **Interactive map** of 1,500+ public courts, fields, rinks and pools from
-  the City of Montréal's open data, with a sport filter and a "Near me" button.
+- **Interactive map** of 2,000+ places to play: public courts, fields, rinks
+  and pools from the City of Montréal's open data, plus indoor gyms, arenas,
+  climbing walls and studios from OpenStreetMap. Filter by one or several
+  sports, or tap "Near me".
 - **Pickup games on the map.** Purple dots are venues with upcoming games. Tap
   one to see its games and **Join** or **Leave**. Grey dots are venues without
   games: tap one to **create a game** there.
@@ -82,7 +84,11 @@ backend/
 
 sports-meetup/
   public/
-    terrain_sport_ext.json   City of Montréal facilities (the venue data)
+    outdoor_facilities.json  City of Montréal outdoor facilities
+    indoor_facilities.json   Indoor facilities from OpenStreetMap
+    park_names.json          Park code → park name, for outdoor facilities
+  scripts/
+    build-park-names.cjs     Rebuilds park_names.json from the city's parks file
   src/
     App.tsx           App shell: header, current page, tab bar
     pages/            One file per tab (Map, Profile, Community, Settings)
@@ -91,7 +97,7 @@ sports-meetup/
       games/          Game cards, create form, backend calls, live refresh
     shared/
       sports.ts       THE sports list used everywhere (see below)
-      venues.ts       Loads venues from the data file
+      venues.ts       Loads venues from both data files
       TabBar.tsx      Bottom tab bar
 ```
 
@@ -101,8 +107,11 @@ These are used by every feature, so change them in one place only:
 
 - **Sports** live in `sports-meetup/src/shared/sports.ts`. Code stores and
   compares the `slug` (`basketball`, `outdoor-gym`…) and shows the `label`. The
-  `keywords` decide which sport a city facility is, from its name.
-- **Venues** have the shape `{ id, name, borough, lat, lng, sports }`. The `id`
+  `keywords` decide which sport a city facility is, from its name, and the
+  `osmTags` do the same for indoor places, from their OpenStreetMap `sport` tag.
+- **Venues** have the shape `{ id, name, borough, lat, lng, sports, details? }`.
+  `details` (address, website, phone, opening hours, wheelchair access, fee)
+  only exists for OpenStreetMap places, and only with the fields they have. The `id`
   is `mtl:` plus the city's facility ID (for example `mtl:049-0030`), and
   games store it as `venue_id`.
 - **Spots left** is never stored. The backend computes it as total spots minus
@@ -131,6 +140,10 @@ Requests that change data need an `X-User-Id` header (see below).
 
 ## Data and credits
 
-- Sports facilities: [Ville de Montréal open data](https://donnees.montreal.ca),
+- Outdoor sports facilities: [Ville de Montréal open data](https://donnees.montreal.ca),
   licence CC-BY 4.0.
-- Map tiles: © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors.
+- Park names: [Ville de Montréal, Grands parcs, parcs d'arrondissements et espaces publics](https://donnees.montreal.ca/dataset/grands-parcs-parcs-d-arrondissements-et-espaces-publics),
+  licence CC-BY 4.0.
+- Indoor facilities and map tiles: © [OpenStreetMap](https://www.openstreetmap.org/copyright)
+  contributors. The facility data is available under the Open Database
+  Licence (ODbL).
