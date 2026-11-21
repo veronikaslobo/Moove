@@ -9,7 +9,7 @@ from db import connect, init_db
 from games import to_utc_text
 
 # (sport, starts in N hours, venue_id, total_spots, skill_level, notes, extra players)
-# Venue ids are "mtl:" + the ID column of terrain_sport_ext.json
+# Venue ids are "mtl:" + the ID column of outdoor_facilities.json
 # (City of Montréal facilities), the same ids the map uses.
 FAKE_GAMES = [
     ("basketball", 2, "mtl:049-0030", 10, "all", "Bring a ball", ["user-2", "user-3"]),
