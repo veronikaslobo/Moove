@@ -4,8 +4,7 @@
 
 export type LatLng = [number, number]
 
-// Within this distance a spot counts as walkable and is highlighted green.
-export const WALKABLE_KM = 1
+// The "walkable" distance (green dots) is a user setting: see preferences.ts.
 
 // Typical city speeds, used only for rough "~15 min" estimates.
 const WALKING_KM_PER_HOUR = 5
@@ -27,6 +26,11 @@ export function distanceKm(from: LatLng, to: LatLng): number {
 
 export function formatDistance(km: number): string {
   return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`
+}
+
+// For round setting values: 0.5 → "500 m", 1 → "1 km", 2 → "2 km".
+export function formatSettingDistance(km: number): string {
+  return km < 1 ? `${Math.round(km * 1000)} m` : `${km} km`
 }
 
 function minutesAt(km: number, kmPerHour: number): number {

@@ -5,8 +5,8 @@ import {
   distanceKm,
   formatDistance,
   walkingMinutes,
-  WALKABLE_KM,
 } from '../../shared/geo.ts'
+import { usePreferences } from '../../shared/preferences.ts'
 import type { Venue } from '../../shared/venues.ts'
 
 type GetThereProps = {
@@ -23,13 +23,15 @@ const MODES: { mode: TravelMode; label: string }[] = [
 
 function GetThere({ venue, myPosition }: GetThereProps) {
   const destination: LatLng = [venue.lat, venue.lng]
+  const { walkableKm } = usePreferences()
 
   // Distance line, only once we know where the user is.
+  // Within the user's walking distance we give a walking time, else a bike time.
   let distanceLine = null
   if (myPosition) {
     const km = distanceKm(myPosition, destination)
     distanceLine =
-      km <= WALKABLE_KM
+      km <= walkableKm
         ? `${formatDistance(km)} · ~${walkingMinutes(km)} min walk`
         : `${formatDistance(km)} · ~${cyclingMinutes(km)} min by bike`
   }

@@ -1,0 +1,74 @@
+/* One block per setting: title, short explanation, choice buttons. */
+.setting {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.setting h2 {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.setting p {
+  font-size: 15px;
+}
+
+/* "[ 1.5 ] km" */
+.setting-distance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  color: var(--text-h);
+}
+
+.setting-distance input {
+  width: 80px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 15px;
+}
+
+.setting-distance input:focus {
+  outline: 2px solid var(--accent-border);
+  border-color: var(--accent);
+}
+
+.setting .setting-error {
+  margin-top: 6px;
+  color: #dc2626;
+  font-size: 14px;
+}
+
+.setting-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.setting-choices button {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.setting-choices button:hover {
+  border-color: var(--accent-border);
+}
+
+/* The chosen option: filled purple, like the map's mode buttons. */
+.setting-choices button.selected {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--bg); /* white in light mode, near-black on the lighter dark-mode purple */
+}
