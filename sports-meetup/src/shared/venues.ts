@@ -77,6 +77,15 @@ function osmSports(name: string, sport = '', leisure = ''): string[] {
   return sportsFromOsmTag(sport)
 }
 
+// The city file only has outdoor rinks, but the OpenStreetMap file mostly has
+// arenas. Its skating places count as indoor, except those named "patinoire"
+// (the word used for outdoor rinks, e.g. the one at lac aux Castors).
+// Checked by hand on all 35 skating places in the file.
+function toIndoorOrOutdoorSkating(name: string, sports: string[]): string[] {
+  if (/patinoire/i.test(name)) return sports
+  return sports.map((slug) => (slug === 'skating' ? 'indoor-skating' : slug))
+}
+
 function osmToVenues(facilities: OsmFacility[]): Venue[] {
   const venues: Venue[] = []
   for (const facility of facilities) {
@@ -86,7 +95,7 @@ function osmToVenues(facilities: OsmFacility[]): Venue[] {
     // ball fields already in the city file) are left out.
     if (!name) continue
 
-    const sports = osmSports(name, sport, leisure)
+    const sports = toIndoorOrOutdoorSkating(name, osmSports(name, sport, leisure))
     if (sports.length === 0) continue // no sport the app knows (e.g. golf, karting)
 
     // A line (e.g. a climbing route) is placed at its first point.

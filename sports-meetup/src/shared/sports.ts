@@ -34,13 +34,17 @@ export const SPORTS = [
     osmTags: ['american_football', 'canadian_football'],
   },
   { slug: 'skatepark', label: 'Skatepark', keywords: ['planche', 'skate'], osmTags: ['skateboard'] },
-  // "Anneau / Rond de glace" = outdoor ice loop, skated like a rink.
+  // Outdoor rinks. "Anneau / Rond de glace" = outdoor ice loop, skated like a rink.
+  // OpenStreetMap skating places are moved to "indoor-skating" in venues.ts,
+  // unless their name says "patinoire" (see toIndoorOrOutdoorSkating).
   {
     slug: 'skating',
-    label: 'Skating rink',
+    label: 'Skating rink (outdoor)',
     keywords: ['patinoire', 'glace'],
     osmTags: ['skating', 'ice_skating', 'figure_skating', 'recreational_skating'],
   },
+  // Arenas. Only set by venues.ts, so no keywords or tags of its own.
+  { slug: 'indoor-skating', label: 'Skating rink (indoor)', keywords: [], osmTags: [] },
   {
     slug: 'swimming',
     label: 'Pool',
