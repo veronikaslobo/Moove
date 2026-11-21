@@ -13,12 +13,22 @@ export const SPORTS = [
   { slug: 'baseball', label: 'Baseball', keywords: ['baseball', 'balle'] },
   { slug: 'football', label: 'Football', keywords: ['football'] },
   { slug: 'skatepark', label: 'Skatepark', keywords: ['planche', 'skate'] },
-  { slug: 'skating', label: 'Skating rink', keywords: ['patinoire'] },
+  // "Anneau / Rond de glace" = outdoor ice loop, skated like a rink.
+  { slug: 'skating', label: 'Skating rink', keywords: ['patinoire', 'glace'] },
   { slug: 'swimming', label: 'Pool', keywords: ['piscine'] },
   { slug: 'outdoor-gym', label: 'Outdoor gym', keywords: ['entraînement', 'exercice'] },
   { slug: 'petanque', label: 'Pétanque', keywords: ['pétanque'] },
   { slug: 'badminton', label: 'Badminton', keywords: ['badminton'] },
   { slug: 'hockey', label: 'Hockey', keywords: ['hockey'] },
+  { slug: 'bocce', label: 'Bocce', keywords: ['bocce'] },
+  { slug: 'ping-pong', label: 'Ping-pong', keywords: ['ping-pong'] },
+  // Running tracks, plus a few throwing areas ("aire de lancer athlétisme").
+  { slug: 'athletics', label: 'Running track', keywords: ['athlétisme'] },
+  { slug: 'cross-country-ski', label: 'Cross-country ski', keywords: ['ski de fond'] },
+  { slug: 'snowshoe', label: 'Snowshoe', keywords: ['raquette'] },
+  // Also matches the one disc-golf course ("disque-golf").
+  { slug: 'golf', label: 'Golf', keywords: ['golf'] },
+  { slug: 'cricket', label: 'Cricket', keywords: ['cricket'] },
 ]
 
 export function sportLabel(slug: string): string {
