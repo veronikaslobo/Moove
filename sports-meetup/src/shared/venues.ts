@@ -15,7 +15,7 @@ export type Venue = {
 
 // Both files are served from /public.
 // City of Montréal outdoor sports facilities (CC-BY 4.0).
-const CITY_DATA_URL = '/terrain_sport_ext.json'
+const CITY_DATA_URL = '/outdoor_facilities.json'
 // Indoor facilities exported from OpenStreetMap with overpass-turbo (ODbL).
 const INDOOR_DATA_URL = '/indoor_facilities.json'
 
