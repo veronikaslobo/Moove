@@ -1,6 +1,8 @@
 /* Neutral defaults. They pick up your theme variables when they exist (--accent, --text-h),
    so tweak the colors here to match the rest of the app. */
 .auth-gate { max-width: 24rem; margin: 2rem auto; padding: 1.25rem; text-align: center; }
+/* Space between the "You need an account…" text and the log-in button. */
+.auth-gate > .auth-primary { margin-top: 1.25rem; }
 .auth-form { display: grid; gap: 0.8rem; text-align: left; }
 .auth-form h2 { margin: 0; text-align: center; }
 .auth-form label { display: grid; gap: 0.25rem; font-weight: 600; }
