@@ -5,11 +5,11 @@ Run from the backend folder: python seed.py
 
 from datetime import datetime, timedelta, timezone
 
-from db import connect, init_db
-from games import to_utc_text
+from auth_security import hash_password
+from db import connect, init_db, to_utc_text
 
 # (sport, starts in N hours, venue_id, total_spots, skill_level, notes, extra players)
-# Venue ids are "mtl:" + the ID column of outdoor_facilities.json
+# Venue ids are "mtl:" + the ID column of terrain_sport_ext.json
 # (City of Montréal facilities), the same ids the map uses.
 FAKE_GAMES = [
     ("basketball", 2, "mtl:049-0030", 10, "all", "Bring a ball", ["user-2", "user-3"]),
@@ -20,12 +20,21 @@ FAKE_GAMES = [
 ]
 
 HOST_ID = "user-1"
+# Demo accounts you can log in with. Password for all of them: demo-password-123
+DEMO_USERS = [("user-1", "demo1@example.com"), ("user-2", "demo2@example.com"), ("user-3", "demo3@example.com")]
 
 
 def seed() -> None:
     init_db()
     conn = connect()
     conn.execute("delete from games")  # players go too (on delete cascade)
+
+    password_hash = hash_password("demo-password-123")
+    for user_id, email in DEMO_USERS:
+        conn.execute(
+            "insert or ignore into users (id, email, password_hash) values (?, ?, ?)",
+            (user_id, email, password_hash),
+        )
 
     now = datetime.now(timezone.utc)
     for sport, in_hours, venue_id, total_spots, skill_level, notes, extra_players in FAKE_GAMES:

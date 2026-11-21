@@ -27,24 +27,45 @@ export type NewGame = {
   notes: string | null
 }
 
-// Temporary identity: a random id kept in this browser.
-// Replace with the real profile id once the profile feature exists.
-export function getUserId(): string {
-  const storageKey = 'sportsmap-user-id'
-  let userId = localStorage.getItem(storageKey)
-  if (!userId) {
-    userId = crypto.randomUUID()
-    localStorage.setItem(storageKey, userId)
-  }
-  return userId
-}
+// // Temporary identity: a random id kept in this browser.
+// // Replace with the real profile id once the profile feature exists.
+// export function getUserId(): string {
+//   const storageKey = 'sportsmap-user-id'
+//   let userId = localStorage.getItem(storageKey)
+//   if (!userId) {
+//     userId = crypto.randomUUID()
+//     localStorage.setItem(storageKey, userId)
+//   }
+//   return userId
+// }
 
+// This is before the authentication implementation
+// async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+//   const response = await fetch(API_URL + path, {
+//     ...options,
+//     headers: {
+//       'Content-Type': 'application/json',
+//       'X-User-Id': getUserId(),
+//     },
+//   })
+
+//   if (!response.ok) {
+//     // The backend sends errors as { "detail": "game_full" }
+//     const body = await response.json().catch(() => null)
+//     throw new Error(body?.detail ?? `Request failed (${response.status})`)
+//   }
+
+//   return response.json()
+// }
+
+
+// New authentication logic
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(API_URL + path, {
     ...options,
+    credentials: 'include', // send the login cookie so the backend knows who you are
     headers: {
       'Content-Type': 'application/json',
-      'X-User-Id': getUserId(),
     },
   })
 
