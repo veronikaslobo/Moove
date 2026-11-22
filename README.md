@@ -43,10 +43,40 @@ on foot or by bike.
 | 👥 **Moomates** | Hosts see who's coming to their games, with names and profile pictures. No emails are ever shared. |
 | 🔒 **Accounts** | Sign up with email and password, 18+ only (younger visitors are told to *go back to school, baby cow*). |
 | 💬 **Community** | Every upcoming game and posts from other players. Save the games, trials and posts you like as favourites. |
-| ⚙️ **Settings** | Your own walking distance, and light / dark / device theme. |
+| ⚙️ **Profile & settings** | Your name, picture and favourites, plus your own walking distance and light / dark / device theme. |
 
 The last spot in a game can never be taken twice: the backend checks it inside a
 locked database transaction, and spot counts refresh every 5 seconds.
+
+## 📸 A look around
+
+<p align="center">
+  <img src="docs/screenshots/1-near-me.jpg" alt="Map after Near me: places within walking distance of Parc Jarry are green" width="88%"><br>
+  <sub><b>Near me.</b> Everything within your walking distance turns green.</sub>
+</p>
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/2-game.jpg" alt="A pickup dance game in a map popup, with Join and Get there buttons"><br>
+      <sub><b>Join a game.</b> Spots left, skill level, and how to get there by foot, bike or transit.</sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/3-free-trials.jpg" alt="Free-trial clubs shown as cow pins, with a tennis club popup"><br>
+      <sub><b>Free trials.</b> Clubs that let you try a first class for free.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/4-place-info.jpg" alt="YMCA du Parc popup with address, opening hours, wheelchair access and website"><br>
+      <sub><b>Place info.</b> Address, hours, website and accessibility, when the data has them.</sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/5-sign-up.jpg" alt="Sign-up form refusing a 2012 birth date with the message Go back to school baby cow"><br>
+      <sub><b>18+ only.</b> Too young? <i>Go back to school, baby cow.</i> 🐮</sub>
+    </td>
+  </tr>
+</table>
 
 ## 🚀 Running it locally
 
@@ -124,7 +154,7 @@ sports-meetup/
     build-park-names.cjs     Rebuilds park_names.json from the city's parks file
   src/
     App.tsx           App shell: header, current page, tab bar
-    pages/            One file per tab (Community, Map, Profile, Settings)
+    pages/            One file per tab (Community, Map, Profile); Settings lives in Profile
     auth/             Log-in / sign-up form and session
     features/
       map/            Map, venue dots, filters, popups
@@ -136,6 +166,7 @@ sports-meetup/
 
 docs/
   banner.svg        The banner at the top of this page
+  screenshots/      The app screenshots in this README
 ```
 
 ## 🤝 Shared conventions
