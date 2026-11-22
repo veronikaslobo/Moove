@@ -90,10 +90,13 @@ function VenueMap() {
     if (onlyToday && !startsToday(game)) continue
     // A game whose venue isn't in the data file has no place on the map
     // (e.g. old test games), so it isn't drawn or counted.
-    if (!venuesById.has(game.venue_id)) continue
-    const venueGames = gamesByVenueId.get(game.venue_id) ?? []
+    const venue = venuesById.get(game.venue_id)
+    if (!venue) continue
+    // Group by the venue's own id, not the game's: a game saved at a
+    // duplicate that was merged away still joins its venue's dot.
+    const venueGames = gamesByVenueId.get(venue.id) ?? []
     venueGames.push(game)
-    gamesByVenueId.set(game.venue_id, venueGames)
+    gamesByVenueId.set(venue.id, venueGames)
   }
 
   // Venues with games get their own marker below, so skip them here.
