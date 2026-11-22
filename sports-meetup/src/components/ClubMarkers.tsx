@@ -1,18 +1,23 @@
+import { divIcon } from 'leaflet'
+import type { DivIcon } from 'leaflet'
 import { Marker, Popup } from 'react-leaflet'
-import type { Club, ClubSport } from '../data/clubs.ts'
+import type { Club } from '../data/clubs.ts'
 import FavouriteButton from '../features/favourites/FavouriteButton.tsx'
-import { clubCowIcon } from './cowIcon.ts'
+import './ClubMarkers.css'
 
-// One emoji per sport. Record<ClubSport, string> means "an object with
-// exactly one entry for every ClubSport". If someone adds a new sport to
-// ClubSport and forgets it here, TypeScript shows an error.
-const SPORT_EMOJI: Record<ClubSport, string> = {
-  tennis: '🎾',
-  mma: '🥋',
-  dance: '💃',
-  fencing: '🤺',
-  boxing: '🥊',
-}
+// A free-trial club = a plain purple circle (no cow: the cows are for
+// venues with games). Plain HTML + CSS, see ClubMarkers.css.
+const CIRCLE_SIZE = 14 // px on screen
+
+// Every club uses the same icon, so it's built once.
+const CLUB_ICON: DivIcon = divIcon({
+  className: 'club-marker', // the box Leaflet moves; styled in ClubMarkers.css
+  html: '<div class="club-marker-circle"></div>',
+  iconSize: [CIRCLE_SIZE, CIRCLE_SIZE],
+  // The CENTRE of the circle sits on the exact location, like a dot.
+  iconAnchor: [CIRCLE_SIZE / 2, CIRCLE_SIZE / 2],
+  popupAnchor: [0, -CIRCLE_SIZE / 2], // open the popup just above the circle
+})
 
 // Props = the inputs a component receives from its parent.
 // This component gets ONE input: the list of clubs to draw.
@@ -29,7 +34,7 @@ function ClubMarkers({ clubs }: ClubMarkersProps) {
         <Marker
           key={club.id} // lets React tell the markers apart when the list changes
           position={[club.lat, club.lng]}
-          icon={clubCowIcon(SPORT_EMOJI[club.sport])} // a Moove cow wearing the sport's emoji
+          icon={CLUB_ICON} // plain purple circle
         >
           <Popup>
             <div className="fav-title-row">

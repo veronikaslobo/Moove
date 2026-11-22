@@ -1,0 +1,23 @@
+/* The marker box itself stays unstyled: Leaflet positions it with a CSS
+   transform, so scaling it here would move the circle off its spot.
+   All the styling goes on the inner circle instead. */
+.club-marker {
+  background: none;
+  border: none;
+}
+
+/* Free-trial club: a plain purple circle (the app's violet). */
+.club-marker-circle {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: #7c3aed;
+  box-shadow: 0 0.5px 2px rgb(0 0 0 / 0.4); /* readable on light map tiles */
+  transition: scale 0.12s ease-out; /* grows from its centre = stays on its spot */
+}
+
+.club-marker-circle:hover {
+  scale: 1.4;
+}

@@ -36,13 +36,12 @@ on foot or by bike.
 |---|---|
 | 🗺️ **One map, 1,600+ places** | Public courts, fields, rinks and pools from the City of Montréal, plus indoor gyms, arenas, climbing walls and studios from OpenStreetMap. Duplicates on the same field are merged into one dot. |
 | 🏐 **Pickup games** | Purple cows are places with upcoming games: tap one to **join** or **leave**. Tap any grey dot to **create a game** there. |
-| 🌙 **Today** | One tap hides the empty places and shows only today's games (until 4 a.m., for the late Friday crowd). |
 | 🎾 **Free trials** | Clubs offering a free first class (tennis, MMA / BJJ, dance, fencing, boxing), with the same multi-sport filter as games. |
 | 🚶 **Get there without a car** | Walk, Bike and Transit buttons open directions. After **Near me**, places within your walking distance turn green. We show no CO₂ numbers on purpose: we have no reliable source for them. |
 | 📍 **Place info** | Park name, sports, and for indoor places the address, opening hours, website, phone, free entry and wheelchair access, when the data has them. |
 | 👥 **Moomates** | Hosts see who's coming to their games, with names and profile pictures. No emails are ever shared. |
 | 🔒 **Accounts** | Sign up with email and password, 18+ only (younger visitors are told to *go back to school, baby cow*). |
-| 💬 **Community** | Every upcoming game and posts from other players. Save the games, trials and posts you like as favourites. |
+| 💬 **Cowmunity** | Every upcoming game and posts from other players. Save the games, trials and posts you like as favourites. |
 | ⚙️ **Profile & settings** | Your name, picture and favourites, plus your own walking distance and light / dark / device theme. |
 
 The last spot in a game can never be taken twice: the backend checks it inside a
@@ -141,7 +140,7 @@ backend/
   auth.py           Sign up (18+), log in, log out
   games.py          Games: feed, create, join, leave, cancel, moomates
   user_profile.py   Profile: name, birth year, gender, picture
-  posts.py          Community posts
+  posts.py          Cowmunity posts
   favorites.py      Favourite games, trials and posts
   seed.py           Fake games for testing
 
@@ -154,7 +153,7 @@ sports-meetup/
     build-park-names.cjs     Rebuilds park_names.json from the city's parks file
   src/
     App.tsx           App shell: header, current page, tab bar
-    pages/            One file per tab (Community, Map, Profile); Settings lives in Profile
+    pages/            One file per tab (Cowmunity, Map, Profile); Settings lives in Profile
     auth/             Log-in / sign-up form and session
     features/
       map/            Map, venue dots, filters, popups
@@ -199,7 +198,7 @@ Requests that change data need to be logged in (session cookie).
 | `DELETE` | `/games/{id}` | Cancel a game (host only, `403 not_host` otherwise) |
 | `GET` · `PUT` | `/profile` | Your profile |
 | `PUT` · `DELETE` | `/profile/picture` | Upload / remove your picture |
-| `GET` · `POST` | `/posts` | Community posts: read / write |
+| `GET` · `POST` | `/posts` | Cowmunity posts: read / write |
 | `DELETE` | `/posts/{id}` | Delete a post |
 | `GET` | `/favorites` | Your favourite games, trials and posts |
 | `PUT` · `DELETE` | `/favorites/{kind}/{id}` | Add / remove a favourite (`kind` = `game`, `trial` or `post`) |
