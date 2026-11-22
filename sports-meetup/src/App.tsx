@@ -45,7 +45,7 @@ function AppContent() {
           <RequireAuth feature="your profile"><ProfilePage /></RequireAuth>
         )}
         {activeTab === 'community' && (
-          <RequireAuth feature="the community"><CommunityPage /></RequireAuth>
+          <RequireAuth feature="the Cowmunity"><CommunityPage /></RequireAuth>
         )}
         {activeTab === 'settings' && <SettingsPage />}
       </main>
