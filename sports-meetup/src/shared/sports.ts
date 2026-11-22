@@ -8,7 +8,7 @@
 //            (used for the indoor facilities file). Several OSM values can
 //            point to one slug, e.g. ice_skating and figure_skating → skating.
 //
-// The sports after "cricket" only come from OpenStreetMap, so their keywords
+// The sports after "paddling" only come from OpenStreetMap, so their keywords
 // are empty: that way the city facilities are matched exactly as before.
 export const SPORTS = [
   { slug: 'basketball', label: 'Basketball', keywords: ['basket'], osmTags: ['basketball'] },
@@ -84,6 +84,14 @@ export const SPORTS = [
   // Also matches the one disc-golf course ("disque-golf").
   { slug: 'golf', label: 'Golf', keywords: ['golf'], osmTags: ['golf'] },
   { slug: 'cricket', label: 'Cricket', keywords: ['cricket'], osmTags: ['cricket'] },
+  // City: "Canöe / Kayak" launch spots. OpenStreetMap: rental and club places,
+  // e.g. "Club de canotage Cartierville" (matched by its name: "canot").
+  {
+    slug: 'paddling',
+    label: 'Kayak / canoe / SUP',
+    keywords: ['kayak', 'canot'],
+    osmTags: ['kayak', 'canoe', 'paddle_sports', 'stand_up_paddleboarding'],
+  },
 
   // From here on: indoor sports from OpenStreetMap only.
   {
