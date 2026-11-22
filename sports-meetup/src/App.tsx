@@ -17,9 +17,11 @@ function AppContent() {
   return (
     <>
       <header className="app-header">
-        <span className="app-logo" aria-hidden="true">●</span>
-        <span className="app-name">SportsMap</span>
-        <span className="app-tagline">What can I join tonight?</span>
+        {/* The wrapper crops the empty space around the word in the PNG. */}
+        <span className="app-wordmark">
+          <img src="/moove-logo.png" alt="Moove" />
+        </span>
+        <img className="app-mascot" src="/moove-cow.png" alt="" />
         {user && (
           <span className="app-auth">
             {user.email}
