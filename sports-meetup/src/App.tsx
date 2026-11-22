@@ -17,11 +17,20 @@ function AppContent() {
   return (
     <>
       <header className="app-header">
-        {/* The wrapper crops the empty space around the word in the PNG. */}
-        <span className="app-wordmark">
-          <img src="/moove-logo.png" alt="Moove" />
-        </span>
-        <img className="app-mascot" src="/moove-cow.png" alt="" />
+        {/* The map is the home page: logo or cow takes you back to it,
+            like the logo on most websites. */}
+        <button
+          type="button"
+          className="app-home-button"
+          onClick={() => setActiveTab('map')}
+          aria-label="Moove, go to the map"
+        >
+          {/* The wrapper crops the empty space around the word in the PNG. */}
+          <span className="app-wordmark">
+            <img src="/moove-logo.png" alt="" />
+          </span>
+          <img className="app-mascot" src="/moove-cow.png" alt="" />
+        </button>
         {user && (
           <span className="app-auth">
             {user.email}
