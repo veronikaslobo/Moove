@@ -1,6 +1,7 @@
 """Run from the backend folder: pip install pytest httpx && pytest -q"""
 
 import sqlite3
+from datetime import date, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
@@ -8,7 +9,8 @@ from fastapi.testclient import TestClient
 import config
 
 ORIGIN = {"Origin": "http://localhost:5173"}
-CREDS = {"email": "Ana@Example.com", "password": "correct-horse-battery"}
+ADULT_BIRTH_DATE = "1995-06-15"
+CREDS = {"email": "Ana@Example.com", "password": "correct-horse-battery", "birth_date": ADULT_BIRTH_DATE}
 GAME = {"sport": "soccer", "starts_at": "2030-01-01T10:00:00Z", "venue_id": "v1", "total_spots": 4}
 
 
@@ -57,7 +59,40 @@ def test_password_is_hashed_with_argon2id(client):
 def test_duplicate_email_and_weak_password_rejected(client):
     assert client.post("/auth/register", json=CREDS).status_code == 201
     assert client.post("/auth/register", json={**CREDS, "email": "ANA@example.com"}).status_code == 409
-    assert client.post("/auth/register", json={"email": "b@example.com", "password": "short"}).status_code == 422
+    short_password = {"email": "b@example.com", "password": "short", "birth_date": ADULT_BIRTH_DATE}
+    assert client.post("/auth/register", json=short_password).status_code == 422
+
+
+def years_ago(years: int, today: date) -> date:
+    """The same day `years` years back (Feb 29 becomes Feb 28 in a non-leap year)."""
+    try:
+        return today.replace(year=today.year - years)
+    except ValueError:
+        return today.replace(year=today.year - years, day=28)
+
+
+def test_must_be_18_to_register(client):
+    today = date.today()
+    eighteenth_birthday_today = years_ago(18, today)
+    turns_18_tomorrow = eighteenth_birthday_today + timedelta(days=1)
+
+    def register(email, birth_date):
+        return client.post("/auth/register", json={**CREDS, "email": email, "birth_date": str(birth_date)})
+
+    refused = register("kid@example.com", turns_18_tomorrow)
+    assert refused.status_code == 403 and refused.json()["detail"] == "under_minimum_age"
+    assert rows(client, "select count(*) from users")[0][0] == 0  # no account was created
+
+    assert register("adult@example.com", eighteenth_birthday_today).status_code == 201
+
+
+def test_impossible_birth_dates_rejected(client):
+    tomorrow = date.today() + timedelta(days=1)
+    for birth_date in [str(tomorrow), "1850-01-01"]:
+        r = client.post("/auth/register", json={**CREDS, "birth_date": birth_date})
+        assert r.status_code == 400 and r.json()["detail"] == "invalid_birth_date"
+    missing = {"email": CREDS["email"], "password": CREDS["password"]}
+    assert client.post("/auth/register", json=missing).status_code == 422
 
 
 def test_invalid_credentials_are_generic(client):
@@ -95,7 +130,8 @@ def test_only_host_can_delete_a_game(client):
     client.post("/auth/register", json=CREDS)
     game_id = client.post("/games", json=GAME).json()["id"]
     with TestClient(app, headers=ORIGIN) as other:
-        other.post("/auth/register", json={"email": "bo@example.com", "password": "another-long-password"})
+        other.post("/auth/register", json={"email": "bo@example.com", "password": "another-long-password",
+                                           "birth_date": ADULT_BIRTH_DATE})
         assert other.delete(f"/games/{game_id}").status_code == 403
     assert client.delete(f"/games/{game_id}").status_code == 200
     assert client.delete(f"/games/{game_id}").status_code == 404
