@@ -1,11 +1,8 @@
+import ProfileView from '../features/profile/ProfileView.tsx'
+
+// Only shown to logged-in users: App.tsx wraps this page in <RequireAuth>.
 function ProfilePage() {
-  return (
-    <div className="page-content">
-      <h1>Profile</h1>
-      {/* TODO (profile feature): display name, sport picker, skill level */}
-      <p>Profile coming soon.</p>
-    </div>
-  )
+  return <ProfileView />
 }
 
 export default ProfilePage
