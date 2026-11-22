@@ -16,9 +16,8 @@ import { SPORTS } from '../../shared/sports.ts'
 import type { Venue } from '../../shared/venues.ts'
 import { useVenues, venueDisplayName } from '../../shared/venues.ts'
 import './map.css'
-import { clubs } from '../../data/clubs.ts'
+import { CLUB_SPORTS, clubs } from '../../data/clubs.ts'
 import ClubMarkers from '../../components/ClubMarkers.tsx'
-import ClubFilter from '../../components/ClubFilter.tsx'
 
 const MONTREAL_CENTER: [number, number] = [45.5019, -73.5674]
 
@@ -58,8 +57,11 @@ function VenueMap() {
   const [onlyToday, setOnlyToday] = useState(false)
   const [map, setMap] = useState<LeafletMap | null>(null)
   const [mode, setMode] = useState<"games" | "trials">("games");
-  const [clubSport, setClubSport] = useState("all");
-  const filteredClubs = clubs.filter(c => clubSport === "all" || c.sport === clubSport);
+  // Free-trial sports ticked in their filter. Empty = show every club.
+  const [selectedClubSports, setSelectedClubSports] = useState<string[]>([])
+  const filteredClubs = clubs.filter(
+    (club) => selectedClubSports.length === 0 || selectedClubSports.includes(club.sport),
+  )
   const [myPosition, setMyPosition] = useState<[number, number] | null>(null)
   const [venueForNewGame, setVenueForNewGame] = useState<Venue | null>(null)
 
@@ -178,7 +180,14 @@ function VenueMap() {
                 onChange={setSelectedSports}
               />
             )}
-            {mode === 'trials' && <ClubFilter value={clubSport} onChange={setClubSport} />}
+            {/* Same checklist as for games, with the free-trial sports. */}
+            {mode === 'trials' && (
+              <SportFilter
+                options={CLUB_SPORTS}
+                selected={selectedClubSports}
+                onChange={setSelectedClubSports}
+              />
+            )}
 
             <button onClick={showMyPosition}>Near me</button>
           </div>
