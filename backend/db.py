@@ -80,6 +80,15 @@ create table if not exists profile_pictures (
     image      blob not null,
     updated_at text not null
 );
+
+-- Community posts ("Let's get mooving!" on the Community tab).
+create table if not exists posts (
+    id         integer primary key autoincrement,
+    author_id  text    not null references users(id) on delete cascade,
+    body       text    not null,
+    created_at text    not null default (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
+);
+create index if not exists posts_newest on posts(created_at);
 """
 
 
