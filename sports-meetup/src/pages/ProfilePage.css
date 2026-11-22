@@ -1,11 +1,12 @@
 /* The row of buttons at the top of the Profile tab. Same pill look as the choices in Settings. */
-.profile-nav {
+/* .page-content.profile-nav so it beats the generic .page-content padding. */
+.page-content.profile-nav {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding-top: 12px;
+  padding-top: 24px;
   padding-bottom: 0;
 }
 
