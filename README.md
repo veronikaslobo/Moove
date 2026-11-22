@@ -42,7 +42,7 @@ on foot or by bike.
 | 📍 **Place info** | Park name, sports, and for indoor places the address, opening hours, website, phone, free entry and wheelchair access, when the data has them. |
 | 👥 **Moomates** | Hosts see who's coming to their games, with names and profile pictures. No emails are ever shared. |
 | 🔒 **Accounts** | Sign up with email and password, 18+ only (younger visitors are told to *go back to school, baby cow*). |
-| 💬 **Community** | Every upcoming game and posts from other players. Save the games, trials and posts you like as favourites. |
+| 💬 **Cowmunity** | Every upcoming game and posts from other players. Save the games, trials and posts you like as favourites. |
 | ⚙️ **Settings** | Your own walking distance, and light / dark / device theme. |
 
 The last spot in a game can never be taken twice: the backend checks it inside a
