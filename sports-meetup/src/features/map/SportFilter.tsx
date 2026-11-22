@@ -1,4 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+
+// Gap kept between the open list and the edge of the screen.
+const SCREEN_MARGIN_PX = 12
 
 type SportOption = { slug: string; label: string }
 
@@ -12,6 +15,23 @@ type SportFilterProps = {
 function SportFilter({ options, selected, onChange }: SportFilterProps) {
   const [isOpen, setIsOpen] = useState(false)
   const filterRef = useRef<HTMLDivElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  // How far the list is moved left so it stays on screen (0 = right under the button).
+  const [shiftLeftPx, setShiftLeftPx] = useState(0)
+
+  // The list opens under the button's left edge. When the button is near the
+  // right of a narrow screen, the list would run off it, so we measure it
+  // and slide it left by the part that sticks out. useLayoutEffect runs
+  // before the browser paints, so the list never flashes in the wrong place.
+  useLayoutEffect(() => {
+    if (!isOpen || !panelRef.current) return
+    const panel = panelRef.current.getBoundingClientRect()
+    const screenRight = window.innerWidth - SCREEN_MARGIN_PX
+    // panel.right already includes the current shift, so add it back.
+    const overflow = panel.right + shiftLeftPx - screenRight
+    setShiftLeftPx(Math.max(0, overflow))
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- measure once per opening
+  }, [isOpen])
 
   // Close the list when the user clicks anywhere outside it.
   useEffect(() => {
@@ -50,7 +70,11 @@ function SportFilter({ options, selected, onChange }: SportFilterProps) {
       </button>
 
       {isOpen && (
-        <div className="sport-filter-panel">
+        <div
+          className="sport-filter-panel"
+          ref={panelRef}
+          style={{ transform: `translateX(-${shiftLeftPx}px)` }}
+        >
           <div className="sport-filter-list">
             {options.map((option) => (
               <label key={option.slug}>
