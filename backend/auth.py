@@ -2,6 +2,7 @@
 
 import sqlite3
 import uuid
+from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 
@@ -12,9 +13,33 @@ from db import connect, write_transaction
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+# Meeting strangers for games: accounts are for adults only.
+MINIMUM_AGE = 18
+# Older than this is almost surely a typo (e.g. 1025 instead of 2025).
+MAXIMUM_AGE = 120
+
+
+def age_on(birth_date: date, today: date) -> int:
+    """Age in full years: someone born 2008-11-22 is still 17 on 2026-11-21."""
+    had_birthday_this_year = (today.month, today.day) >= (birth_date.month, birth_date.day)
+    return today.year - birth_date.year - (0 if had_birthday_this_year else 1)
+
+
+def check_age(birth_date: date) -> None:
+    """Refuse sign-ups from people under 18, or with an impossible birth date.
+
+    Done on the server, not only in the form: anyone can call the API directly.
+    """
+    today = date.today()
+    if birth_date > today or age_on(birth_date, today) > MAXIMUM_AGE:
+        raise HTTPException(status_code=400, detail="invalid_birth_date")
+    if age_on(birth_date, today) < MINIMUM_AGE:
+        raise HTTPException(status_code=403, detail="under_minimum_age")
+
 
 @router.post("/register", status_code=201, response_model=UserOut)
 def register(body: RegisterIn, response: Response):
+    check_age(body.birth_date)  # first: no point hashing a password we'll refuse
     email = sec.normalize_email(body.email)
     password_hash = sec.hash_password(body.password)  # slow on purpose, so done before the lock
     user_id = uuid.uuid4().hex
