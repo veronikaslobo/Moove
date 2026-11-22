@@ -1,25 +1,35 @@
 .app-header {
   flex-shrink: 0;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
-  padding: 12px 16px;
+  padding: 8px 16px;
   border-bottom: 1px solid var(--border);
 }
 
-.app-logo {
-  color: var(--accent);
-  font-size: 14px;
+.app-mascot {
+  height: 72px;
+  width: auto;
 }
 
-.app-name {
-  color: var(--text-h);
-  font-weight: 600;
-  font-size: 18px;
+/* moove-logo.png is 1658×286, but the word only fills the box from
+   x 0–730 and y 106–286 (the rest is transparent). This wrapper is the size
+   of the word alone; the image inside is shifted up so the empty top is
+   cut off, and the empty right side falls outside. Change --wordmark-height
+   to resize it. */
+.app-wordmark {
+  --wordmark-height: 40px;
+  height: var(--wordmark-height);
+  aspect-ratio: 730 / 180;
+  overflow: hidden;
 }
 
-.app-tagline {
-  font-size: 14px;
+.app-wordmark img {
+  display: block;
+  height: calc(var(--wordmark-height) * 286 / 180);
+  width: auto;
+  max-width: none;
+  margin-top: calc(var(--wordmark-height) * -106 / 180);
 }
 
 /* Takes the space between header and tab bar; scrolls on its own. */
@@ -38,11 +48,4 @@
   margin: 0 auto;
   padding: 0 16px 24px;
   box-sizing: border-box;
-}
-
-/* Small screens: the tagline would crowd the header. */
-@media (max-width: 480px) {
-  .app-tagline {
-    display: none;
-  }
 }
