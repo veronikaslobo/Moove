@@ -8,23 +8,26 @@ import './cowIcon.css'
 // (The 3,000+ plain venues stay small grey dots: 3,000 cow images would
 // make the map slow and cluttered.)
 //
-// The image is a 100px-tall copy of public/moove-cow.png, made for markers
-// so the browser doesn't load the full 800 KB picture for every cow.
+// The image is just the HEAD of public/moove-cow.png, cut out and shrunk to
+// 79×64 px (7 KB), so the browser doesn't load the full 800 KB picture.
+// It's shown at 24×19 px: small like the dots, still clearly the Moove cow.
 
 type CowKind = 'game' | 'club'
+
+const HEAD_SIZE: [number, number] = [24, 19] // width, height in px on screen
 
 function makeCowIcon(kind: CowKind, badge: string): DivIcon {
   return divIcon({
     className: 'cow-marker', // styled in cowIcon.css
     html: `
       <div class="cow-marker-inner cow-marker-${kind}">
-        <span class="cow-marker-ground"></span>
-        <img src="/moove-cow-marker.png" alt="" draggable="false" />
+        <img src="/moove-cow-head.png" alt="" draggable="false" />
         <span class="cow-marker-badge">${badge}</span>
       </div>`,
-    iconSize: [40, 44],
-    iconAnchor: [20, 42], // the cow's feet (bottom-centre) sit on the exact location
-    popupAnchor: [0, -40], // open the popup just above the cow's head
+    iconSize: HEAD_SIZE,
+    // The CENTRE of the head sits on the exact location, like the centre of a dot.
+    iconAnchor: [HEAD_SIZE[0] / 2, HEAD_SIZE[1] / 2],
+    popupAnchor: [0, -HEAD_SIZE[1] / 2], // open the popup just above the head
   })
 }
 
