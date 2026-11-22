@@ -62,10 +62,9 @@
   position: relative;
 }
 
-/* Filters that are switched on (sport filter, Today): light purple.
+/* The sport filter when switched on: light purple.
    Solid, not a see-through tint, which would let the map show through. */
-.venue-map-controls .sport-filter-button.active,
-.venue-map-controls .today-button.active {
+.venue-map-controls .sport-filter-button.active {
   border-color: #7c3aed;
   background: #ede9fe;
 }

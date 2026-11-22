@@ -30,10 +30,16 @@
   cursor: pointer;
 }
 
+.profile-sections button:hover,
+.profile-settings:hover {
+  border-color: var(--accent-border);
+}
+
+/* The open section: filled purple, like the map's mode buttons and the
+   choices in Settings. */
 .profile-sections button.selected,
 .profile-settings.selected {
   border-color: var(--accent);
-  background: var(--accent-bg);
-  color: var(--accent);
-  font-weight: 600;
+  background: var(--accent);
+  color: var(--bg); /* white in light mode, near-black on the lighter dark-mode purple */
 }

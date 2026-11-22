@@ -31,19 +31,31 @@ const ME_STYLE = { color: '#1d4ed8', fillColor: '#3b82f6', fillOpacity: 0.9, wei
 // toward spots they can reach without a car.
 const WALKABLE_STYLE = { color: '#15803d', fillColor: '#22c55e', fillOpacity: 0.9, weight: 1 }
 
-// "Today" = from now until 4 a.m. Games after midnight still count as
-// today (a late Friday game), so the day ends at 4 a.m., not midnight.
-const NIGHT_ENDS_AT_HOUR = 4
+// "Near me" is remembered for the rest of the session (until the browser tab
+// is closed), so it's still on after visiting another tab and coming back.
+// sessionStorage can be blocked (e.g. some private windows): then the map
+// just forgets, like before.
+const NEAR_ME_KEY = 'moove.nearMe'
+const NEAR_ME_ZOOM = 15
 
-function endOfToday(now: Date): Date {
-  const end = new Date(now)
-  end.setHours(NIGHT_ENDS_AT_HOUR, 0, 0, 0) // 4 a.m. today, local time
-  if (end <= now) end.setDate(end.getDate() + 1) // already past it: tomorrow 4 a.m.
-  return end
+function loadSavedPosition(): [number, number] | null {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(NEAR_ME_KEY) ?? 'null')
+    if (Array.isArray(saved) && saved.length === 2 && saved.every(Number.isFinite)) {
+      return [saved[0], saved[1]]
+    }
+  } catch {
+    // blocked or bad value: start without a position
+  }
+  return null
 }
 
-function startsToday(game: Game): boolean {
-  return new Date(game.starts_at) < endOfToday(new Date())
+function savePosition(position: [number, number]) {
+  try {
+    sessionStorage.setItem(NEAR_ME_KEY, JSON.stringify(position))
+  } catch {
+    // blocked: Near me still works, it just won't be remembered
+  }
 }
 
 function VenueMap() {
@@ -54,8 +66,6 @@ function VenueMap() {
 
   // Sports ticked in the filter. Empty = show every sport.
   const [selectedSports, setSelectedSports] = useState<string[]>([])
-  // On: only games starting before the night ends (see startsToday).
-  const [onlyToday, setOnlyToday] = useState(false)
   const [map, setMap] = useState<LeafletMap | null>(null)
   const [mode, setMode] = useState<"games" | "trials">("games");
   // Free-trial sports ticked in their filter. Empty = show every club.
@@ -63,7 +73,7 @@ function VenueMap() {
   const filteredClubs = clubs.filter(
     (club) => selectedClubSports.length === 0 || selectedClubSports.includes(club.sport),
   )
-  const [myPosition, setMyPosition] = useState<[number, number] | null>(null)
+  const [myPosition, setMyPosition] = useState<[number, number] | null>(loadSavedPosition)
   const [venueForNewGame, setVenueForNewGame] = useState<Venue | null>(null)
 
   // The games layer is drawn as SVG (one element per dot), not as a canvas.
@@ -90,7 +100,6 @@ function VenueMap() {
   const gamesByVenueId = new Map<string, Game[]>()
   for (const game of games) {
     if (!matchesFilter(game.sport)) continue
-    if (onlyToday && !startsToday(game)) continue
     // A game whose venue isn't in the data file has no place on the map
     // (e.g. old test games), so it isn't drawn or counted.
     const venue = venuesById.get(game.venue_id)
@@ -103,12 +112,9 @@ function VenueMap() {
   }
 
   // Venues with games get their own marker below, so skip them here.
-  // With "Today" on, the map shows games only: no empty places.
-  const plainVenues = onlyToday
-    ? []
-    : venues.filter(
-        (venue) => venue.sports.some(matchesFilter) && !gamesByVenueId.has(venue.id),
-      )
+  const plainVenues = venues.filter(
+    (venue) => venue.sports.some(matchesFilter) && !gamesByVenueId.has(venue.id),
+  )
 
   function isWalkable(venue: Venue): boolean {
     if (!myPosition) return false // we don't know where the user is yet
@@ -131,7 +137,8 @@ function VenueMap() {
       (position) => {
         const here: [number, number] = [position.coords.latitude, position.coords.longitude]
         setMyPosition(here)
-        map?.setView(here, 15)
+        savePosition(here)
+        map?.setView(here, NEAR_ME_ZOOM)
       },
       () => alert("Couldn't get your location"),
     )
@@ -166,15 +173,6 @@ function VenueMap() {
               Free trials
             </button>
             {mode === 'games' && (
-              <button
-                className={onlyToday ? 'today-button active' : 'today-button'}
-                aria-pressed={onlyToday}
-                onClick={() => setOnlyToday(!onlyToday)}
-              >
-                Today
-              </button>
-            )}
-            {mode === 'games' && (
               <SportFilter
                 options={sportsOnMap}
                 selected={selectedSports}
@@ -194,17 +192,15 @@ function VenueMap() {
           </div>
 
           {mode === 'trials' && (
-            <div className="venue-map-legend">{filteredClubs.length} clubs with free trials</div>
+            <div className="venue-map-legend">
+              <span className="legend-dot legend-dot-game" /> {filteredClubs.length} clubs with free trials
+            </div>
           )}
           {mode === 'games' && (
             <div className="venue-map-legend">
               <span className="legend-dot legend-dot-game" /> {gamesByVenueId.size} with games
-              {!onlyToday && (
-                <>
-                  <span className="legend-dot legend-dot-venue" /> {plainVenues.length} places
-                </>
-              )}
-              {myPosition && !onlyToday && (
+              <span className="legend-dot legend-dot-venue" /> {plainVenues.length} places
+              {myPosition && (
                 <>
                   <span className="legend-dot legend-dot-walkable" /> {walkableCount} within{' '}
                   {formatSettingDistance(walkableKm)}
@@ -218,8 +214,9 @@ function VenueMap() {
             3,000 separate page elements, which keeps the map smooth. */}
         <MapContainer
           className="venue-map"
-          center={MONTREAL_CENTER}
-          zoom={12}
+          // Coming back with Near me on: open zoomed in on where you are.
+          center={myPosition ?? MONTREAL_CENTER}
+          zoom={myPosition ? NEAR_ME_ZOOM : 12}
           preferCanvas
           ref={setMap}
         >
@@ -321,7 +318,7 @@ function VenueMap() {
         {/* The create form slides over the bottom of the map,
             so you keep seeing where the game will be. */}
         {mode === "trials" ? (
-          <p className="venue-map-hint">Tap an orange dot to see the free trial</p>
+          <p className="venue-map-hint">Tap a purple circle to see the free trial</p>
         ) : venueForNewGame ? (
           <div className="venue-map-sheet">
             <CreateGameForm
@@ -333,12 +330,6 @@ function VenueMap() {
               }}
             />
           </div>
-        ) : onlyToday ? (
-          <p className="venue-map-hint">
-            {gamesByVenueId.size > 0
-              ? 'Tap a purple dot to join a game today'
-              : 'No games today yet. Turn off Today to start one'}
-          </p>
         ) : (
           <p className="venue-map-hint">Tap a dot to join a game or start one</p>
         )}

@@ -25,7 +25,7 @@
   user-select: none;
 }
 
-/* Tiny round badge at the top-right: number of games, or sport emoji. */
+/* Tiny round badge at the top-right: the number of games. */
 .cow-marker-badge {
   position: absolute;
   top: -5px;
@@ -47,9 +47,4 @@
 /* Games: the app's violet. */
 .cow-marker-game .cow-marker-badge {
   background: #7c3aed;
-}
-
-/* Free-trial clubs: orange. */
-.cow-marker-club .cow-marker-badge {
-  background: #f97316;
 }
