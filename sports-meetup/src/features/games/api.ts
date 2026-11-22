@@ -96,6 +96,25 @@ export function deleteGame(gameId: number): Promise<{ deleted: boolean }> {
   return request(`/games/${gameId}`, { method: 'DELETE' })
 }
 
+export type Player = {
+  user_id: string
+  display_name: string | null // null until they fill in their profile
+  has_picture: boolean
+  is_host: boolean
+  joined_at: string // UTC
+}
+
+// Who joined a game. Only its host may ask; anyone else gets "not_host".
+export function listPlayers(gameId: number): Promise<Player[]> {
+  return request(`/games/${gameId}/players`)
+}
+
+// A player's profile picture (only exists when has_picture is true).
+// The login cookie goes along with the image request, as the backend requires.
+export function pictureUrl(userId: string): string {
+  return `${API_URL}/profile/picture/${userId}`
+}
+
 export function leaveGame(gameId: number): Promise<{ joined: boolean }> {
   return request(`/games/${gameId}/join`, { method: 'DELETE' })
 }

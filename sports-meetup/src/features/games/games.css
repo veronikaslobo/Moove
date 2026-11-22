@@ -122,6 +122,53 @@
   font-weight: 600;
 }
 
+/* "See who's coming": a link-style button, not a big bordered one. */
+.game-card .game-players-toggle {
+  margin-top: 6px;
+  padding: 0;
+  border: none;
+  color: var(--accent);
+  font-size: 14px;
+  text-decoration: underline;
+  white-space: nowrap; /* "See your moomates (3)" on one line, even in a narrow popup */
+}
+
+.game-players-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.game-players-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Round picture, or a round initial when there's no picture. */
+.game-players-avatar {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.game-players-you {
+  color: var(--text);
+}
+
 .game-card button:disabled {
   opacity: 0.6;
   cursor: default;
