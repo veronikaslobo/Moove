@@ -1,4 +1,4 @@
-# SportsMap
+# Moove
 
 **It's Friday evening. What can I join tonight, near me?**
 
