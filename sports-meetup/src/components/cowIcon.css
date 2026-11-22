@@ -7,14 +7,13 @@
 }
 
 .cow-marker-inner {
-  position: relative;
   width: 100%;
   height: 100%;
   transition: scale 0.12s ease-out; /* grows from its centre = stays on its spot */
 }
 
 .cow-marker-inner:hover {
-  scale: 1.4;
+  scale: 1.5;
 }
 
 .cow-marker-inner img {
@@ -25,31 +24,8 @@
   user-select: none;
 }
 
-/* Tiny round badge at the top-right: number of games, or sport emoji. */
-.cow-marker-badge {
-  position: absolute;
-  top: -5px;
-  right: -7px;
-  min-width: 13px;
-  height: 13px;
-  padding: 0 2px;
-  box-sizing: border-box;
-  border-radius: 7px;
-  border: 1.5px solid #fff;
-  color: #fff;
-  font-size: 7.5px;
-  font-weight: 700;
-  line-height: 10px;
-  text-align: center;
-  box-shadow: 0 0.5px 1.5px rgb(0 0 0 / 0.35);
-}
-
-/* Games: the app's violet. */
-.cow-marker-game .cow-marker-badge {
-  background: #7c3aed;
-}
-
-/* Free-trial clubs: orange. */
-.cow-marker-club .cow-marker-badge {
-  background: #f97316;
+/* Within walking distance (after "Near me"): a green glow around the head,
+   like the green dots used to be. */
+.cow-marker-walkable img {
+  filter: drop-shadow(0 0 2px #22c55e) drop-shadow(0 0 1px #15803d);
 }

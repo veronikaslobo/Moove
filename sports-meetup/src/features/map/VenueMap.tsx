@@ -18,18 +18,17 @@ import { useVenues, venueDisplayName } from '../../shared/venues.ts'
 import './map.css'
 import { CLUB_SPORTS, clubs } from '../../data/clubs.ts'
 import ClubMarkers from '../../components/ClubMarkers.tsx'
-import { gameCowIcon } from '../../components/cowIcon.ts'
+import { gameCowIcon, venueCowIcon } from '../../components/cowIcon.ts'
+import { useMapBounds } from '../../components/useMapBounds.ts'
 
 const MONTREAL_CENTER: [number, number] = [45.5019, -73.5674]
 
-// Plain venue = small grey dot. Venue with upcoming games = a Moove cow
-// (see components/cowIcon.ts), so "what can I join tonight" stands out
-// from the 3,000+ facilities.
-const VENUE_STYLE = { color: '#6b6375', fillColor: '#9ca3af', fillOpacity: 0.7, weight: 1 }
+// Every place is a Moove cow head (see components/cowIcon.ts): small for a
+// plain venue, big for a venue with upcoming games, so "what can I join
+// tonight" stands out from the 3,000+ facilities. After "Near me", venues
+// within walking distance get a green glow, nudging people toward spots
+// they can reach without a car.
 const ME_STYLE = { color: '#1d4ed8', fillColor: '#3b82f6', fillOpacity: 0.9, weight: 2 }
-// After "Near me": venues within walking distance turn green, nudging people
-// toward spots they can reach without a car.
-const WALKABLE_STYLE = { color: '#15803d', fillColor: '#22c55e', fillOpacity: 0.9, weight: 1 }
 
 // "Today" = from now until 4 a.m. Games after midnight still count as
 // today (a late Friday game), so the day ends at 4 a.m., not midnight.
@@ -109,6 +108,13 @@ function VenueMap() {
     : venues.filter(
         (venue) => venue.sports.some(matchesFilter) && !gamesByVenueId.has(venue.id),
       )
+
+  // Of those, only the ones on screen get a cow drawn (the legend still
+  // counts them all). Before the map has measured itself, draw none.
+  const mapBounds = useMapBounds(map)
+  const visibleVenues = mapBounds
+    ? plainVenues.filter((venue) => mapBounds.contains([venue.lat, venue.lng]))
+    : []
 
   function isWalkable(venue: Venue): boolean {
     if (!myPosition) return false // we don't know where the user is yet
@@ -229,12 +235,13 @@ function VenueMap() {
             attribution="&copy; OpenStreetMap contributors | Data: Ville de Montréal (CC-BY 4.0)"
           />
 
-          {mode === "games" && plainVenues.map((venue) => (
-            <CircleMarker
+          {/* Only the cows on screen are drawn (see useMapBounds), so the
+              map stays smooth with 3,000+ venues. */}
+          {mode === "games" && visibleVenues.map((venue) => (
+            <Marker
               key={venue.id}
-              center={[venue.lat, venue.lng]}
-              radius={isWalkable(venue) ? 7 : 5}
-              pathOptions={isWalkable(venue) ? WALKABLE_STYLE : VENUE_STYLE}
+              position={[venue.lat, venue.lng]}
+              icon={venueCowIcon(isWalkable(venue))}
             >
               <Popup>
                 <VenueHeading venue={venue} />
@@ -244,7 +251,7 @@ function VenueMap() {
                   Create a game here
                 </button>
               </Popup>
-            </CircleMarker>
+            </Marker>
           ))}
 
           {/* Games and "you are here" get their own layer above the venues.
@@ -257,15 +264,17 @@ function VenueMap() {
             const venue = venuesById.get(venueId)
             if (!venue) return null // game points at a venue not in the data file
             return (
-              // A cow with a purple badge showing how many games are here.
+              // A big cow head = this place has games.
               // pane="markerPane": Leaflet's normal layer for image markers,
-              // above the grey dots and clickable (the "games" pane lets
-              // clicks pass through, so the cow couldn't be tapped in it).
+              // clickable (the "games" pane lets clicks pass through, so the
+              // cow couldn't be tapped in it). zIndexOffset: drawn on top of
+              // the small venue cows around it.
               <Marker
                 key={venueId}
                 position={[venue.lat, venue.lng]}
-                icon={gameCowIcon(venueGames.length)}
+                icon={gameCowIcon()}
                 pane="markerPane"
+                zIndexOffset={1000}
               >
                 {/* pane="popupPane": without it, the popup would sit inside the
                     games layer, which lets clicks through, so its buttons

@@ -2,55 +2,55 @@ import { divIcon } from 'leaflet'
 import type { DivIcon } from 'leaflet'
 import './cowIcon.css'
 
-// Moove cow markers, used for the two kinds of places worth tapping:
-//   - venues with upcoming games  → purple badge with the number of games
-//   - clubs with free trials      → orange badge with the sport's emoji
-// (The 3,000+ plain venues stay small grey dots: 3,000 cow images would
-// make the map slow and cluttered.)
+// Every place on the map is a Moove cow head (no more dots or badges).
+// What kind of place it is shows in the SIZE of the head:
+//   - plain venue                → small head
+//   - venue within walking dist. → small head with a green glow
+//   - venue with upcoming games  → big head (drawn on top of the others)
+//   - free-trial club            → medium head
 //
 // The image is just the HEAD of public/moove-cow.png, cut out and shrunk to
 // 79×64 px (7 KB), so the browser doesn't load the full 800 KB picture.
-// It's shown at 24×19 px: small like the dots, still clearly the Moove cow.
+// Keep sizes at about 5:4 (width:height) so the head isn't squashed.
 
-type CowKind = 'game' | 'club'
+type CowKind = 'venue' | 'walkable' | 'game' | 'club'
 
-const HEAD_SIZE: [number, number] = [24, 19] // width, height in px on screen
+const SIZES: Record<CowKind, [number, number]> = {
+  venue: [16, 13],
+  walkable: [19, 15],
+  game: [28, 22],
+  club: [24, 19],
+}
 
-function makeCowIcon(kind: CowKind, badge: string): DivIcon {
+function makeCowIcon(kind: CowKind): DivIcon {
+  const [width, height] = SIZES[kind]
   return divIcon({
     className: 'cow-marker', // styled in cowIcon.css
-    html: `
-      <div class="cow-marker-inner cow-marker-${kind}">
-        <img src="/moove-cow-head.png" alt="" draggable="false" />
-        <span class="cow-marker-badge">${badge}</span>
-      </div>`,
-    iconSize: HEAD_SIZE,
+    html: `<div class="cow-marker-inner cow-marker-${kind}"><img src="/moove-cow-head.png" alt="" draggable="false" /></div>`,
+    iconSize: [width, height],
     // The CENTRE of the head sits on the exact location, like the centre of a dot.
-    iconAnchor: [HEAD_SIZE[0] / 2, HEAD_SIZE[1] / 2],
-    popupAnchor: [0, -HEAD_SIZE[1] / 2], // open the popup just above the head
+    iconAnchor: [width / 2, height / 2],
+    popupAnchor: [0, -height / 2], // open the popup just above the head
   })
 }
 
-// Each icon is built once and reused. A Map is a lookup table: key → value.
-const gameIcons = new Map<number, DivIcon>()
-const clubIcons = new Map<string, DivIcon>()
-
-// gameCowIcon(3) → a cow with a purple "3" badge.
-export function gameCowIcon(gameCount: number): DivIcon {
-  let icon = gameIcons.get(gameCount)
-  if (!icon) {
-    icon = makeCowIcon('game', String(gameCount))
-    gameIcons.set(gameCount, icon)
-  }
-  return icon
+// Only 4 icons exist, built once when the file loads, and shared by every
+// marker. 3,000 markers using the same icon is much cheaper than 3,000 icons.
+const ICONS: Record<CowKind, DivIcon> = {
+  venue: makeCowIcon('venue'),
+  walkable: makeCowIcon('walkable'),
+  game: makeCowIcon('game'),
+  club: makeCowIcon('club'),
 }
 
-// clubCowIcon('🥊') → a cow with an orange 🥊 badge.
-export function clubCowIcon(emoji: string): DivIcon {
-  let icon = clubIcons.get(emoji)
-  if (!icon) {
-    icon = makeCowIcon('club', emoji)
-    clubIcons.set(emoji, icon)
-  }
-  return icon
+export function venueCowIcon(isWalkable: boolean): DivIcon {
+  return isWalkable ? ICONS.walkable : ICONS.venue
+}
+
+export function gameCowIcon(): DivIcon {
+  return ICONS.game
+}
+
+export function clubCowIcon(): DivIcon {
+  return ICONS.club
 }

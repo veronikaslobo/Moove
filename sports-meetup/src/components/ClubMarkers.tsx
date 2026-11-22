@@ -28,10 +28,12 @@ function ClubMarkers({ clubs }: ClubMarkersProps) {
         <Marker
           key={club.id} // lets React tell the markers apart when the list changes
           position={[club.lat, club.lng]}
-          icon={clubCowIcon(SPORT_EMOJI[club.sport])} // a Moove cow wearing the sport's emoji
+          icon={clubCowIcon()} // a Moove cow head
         >
           <Popup>
-            <p className="venue-popup-title">{club.name}</p>
+            <p className="venue-popup-title">
+              {SPORT_EMOJI[club.sport]} {club.name}
+            </p>
             {/* Only show the styles line if this club has one. */}
             {club.styles && <p>{club.styles}</p>}
             <p className="venue-popup-borough">
