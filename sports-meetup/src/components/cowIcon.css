@@ -1,0 +1,76 @@
+/* The marker box itself stays unstyled: Leaflet positions it with a CSS
+   transform, so scaling or rotating it here would move the cow off its spot.
+   All the styling goes on the inner element instead. */
+.cow-marker {
+  background: none;
+  border: none;
+}
+
+.cow-marker-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: bottom center; /* hover-grow from the feet, so they stay put */
+  transition: scale 0.12s ease-out;
+}
+
+.cow-marker-inner:hover {
+  scale: 1.2;
+}
+
+.cow-marker-inner img {
+  position: absolute;
+  left: 0;
+  bottom: 2px;
+  width: 38px;
+  height: auto;
+  filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.45)); /* readable on light map tiles */
+  user-select: none;
+}
+
+/* A coloured oval under the feet marks the exact spot. */
+.cow-marker-ground {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 26px;
+  height: 8px;
+  translate: -50% 0;
+  border-radius: 50%;
+  opacity: 0.55;
+}
+
+/* Small round badge at the top-right: number of games, or sport emoji. */
+.cow-marker-badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  border: 2px solid #fff;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+}
+
+/* Games: the app's violet. */
+.cow-marker-game .cow-marker-ground,
+.cow-marker-game .cow-marker-badge {
+  background: #7c3aed;
+}
+
+/* Free-trial clubs: orange, as before. Emoji badges get a bit more room. */
+.cow-marker-club .cow-marker-ground,
+.cow-marker-club .cow-marker-badge {
+  background: #f97316;
+}
+
+.cow-marker-club .cow-marker-badge {
+  font-size: 12px;
+}

@@ -7,6 +7,24 @@
   border-bottom: 1px solid var(--border);
 }
 
+/* Logo + cow, as one plain-looking button (no browser button styling). */
+.app-home-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+}
+
+/* Keyboard users still see where they are. */
+.app-home-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
 .app-mascot {
   height: 72px;
   width: auto;

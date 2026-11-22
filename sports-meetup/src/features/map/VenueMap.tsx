@@ -2,7 +2,7 @@ import 'leaflet/dist/leaflet.css'
 import type { Map as LeafletMap } from 'leaflet'
 import { svg } from 'leaflet'
 import { useEffect, useState } from 'react'
-import { CircleMarker, MapContainer, Pane, Popup, TileLayer } from 'react-leaflet'
+import { CircleMarker, MapContainer, Marker, Pane, Popup, TileLayer } from 'react-leaflet'
 import CreateGameForm from '../games/CreateGameForm.tsx'
 import GameCard from '../games/GameCard.tsx'
 import GetThere from './GetThere.tsx'
@@ -16,16 +16,15 @@ import { SPORTS } from '../../shared/sports.ts'
 import type { Venue } from '../../shared/venues.ts'
 import { useVenues, venueDisplayName } from '../../shared/venues.ts'
 import './map.css'
-import { clubs } from '../../data/clubs.ts'
+import { CLUB_SPORTS, clubs } from '../../data/clubs.ts'
 import ClubMarkers from '../../components/ClubMarkers.tsx'
-import ClubFilter from '../../components/ClubFilter.tsx'
 
 const MONTREAL_CENTER: [number, number] = [45.5019, -73.5674]
 
-// Plain venue = small grey dot. Venue with upcoming games = big coloured dot,
-// so "what can I join tonight" stands out from the 3,000+ facilities.
+// Plain venue = small grey dot. Venue with upcoming games = a Moove cow
+// (see components/cowIcon.ts), so "what can I join tonight" stands out
+// from the 3,000+ facilities.
 const VENUE_STYLE = { color: '#6b6375', fillColor: '#9ca3af', fillOpacity: 0.7, weight: 1 }
-const GAME_STYLE = { color: '#5b21b6', fillColor: '#7c3aed', fillOpacity: 0.9, weight: 2 }
 const ME_STYLE = { color: '#1d4ed8', fillColor: '#3b82f6', fillOpacity: 0.9, weight: 2 }
 // After "Near me": venues within walking distance turn green, nudging people
 // toward spots they can reach without a car.
@@ -58,8 +57,11 @@ function VenueMap() {
   const [onlyToday, setOnlyToday] = useState(false)
   const [map, setMap] = useState<LeafletMap | null>(null)
   const [mode, setMode] = useState<"games" | "trials">("games");
-  const [clubSport, setClubSport] = useState("all");
-  const filteredClubs = clubs.filter(c => clubSport === "all" || c.sport === clubSport);
+  // Free-trial sports ticked in their filter. Empty = show every club.
+  const [selectedClubSports, setSelectedClubSports] = useState<string[]>([])
+  const filteredClubs = clubs.filter(
+    (club) => selectedClubSports.length === 0 || selectedClubSports.includes(club.sport),
+  )
   const [myPosition, setMyPosition] = useState<[number, number] | null>(null)
   const [venueForNewGame, setVenueForNewGame] = useState<Venue | null>(null)
 
@@ -178,7 +180,14 @@ function VenueMap() {
                 onChange={setSelectedSports}
               />
             )}
-            {mode === 'trials' && <ClubFilter value={clubSport} onChange={setClubSport} />}
+            {/* Same checklist as for games, with the free-trial sports. */}
+            {mode === 'trials' && (
+              <SportFilter
+                options={CLUB_SPORTS}
+                selected={selectedClubSports}
+                onChange={setSelectedClubSports}
+              />
+            )}
 
             <button onClick={showMyPosition}>Near me</button>
           </div>
@@ -247,11 +256,15 @@ function VenueMap() {
             const venue = venuesById.get(venueId)
             if (!venue) return null // game points at a venue not in the data file
             return (
-              <CircleMarker
+              // A cow with a purple badge showing how many games are here.
+              // pane="markerPane": Leaflet's normal layer for image markers,
+              // above the grey dots and clickable (the "games" pane lets
+              // clicks pass through, so the cow couldn't be tapped in it).
+              <Marker
                 key={venueId}
-                center={[venue.lat, venue.lng]}
-                radius={10}
-                pathOptions={{ ...GAME_STYLE, renderer: gamesRenderer }}
+                position={[venue.lat, venue.lng]}
+                icon={gameCowIcon(venueGames.length)}
+                pane="markerPane"
               >
                 {/* pane="popupPane": without it, the popup would sit inside the
                     games layer, which lets clicks through, so its buttons
@@ -276,7 +289,7 @@ function VenueMap() {
                     Create another game here
                   </button>
                 </Popup>
-              </CircleMarker>
+              </Marker>
             )
           })}
 

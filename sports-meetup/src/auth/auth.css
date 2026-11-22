@@ -1,17 +1,18 @@
-/* Neutral defaults. They pick up your theme variables when they exist (--accent, --text-h),
-   so tweak the colors here to match the rest of the app. */
-.auth-gate { max-width: 24rem; margin: 2rem auto; padding: 1.25rem; text-align: center; }
+/* Uses the app's theme variables from index.css, so light and dark mode both work. */
+.auth-gate { max-width: 384px; margin: 32px auto; padding: 20px 16px; text-align: center; }
 /* Space between the "You need an account…" text and the log-in button. */
 .auth-gate > .auth-primary { margin-top: 1.25rem; }
-.auth-form { display: grid; gap: 0.8rem; text-align: left; }
-.auth-form h2 { margin: 0; text-align: center; }
-.auth-form label { display: grid; gap: 0.25rem; font-weight: 600; }
-.auth-form input { padding: 0.55rem; font: inherit; border: 1px solid #b8c0cc; border-radius: 6px; }
-.auth-primary { padding: 0.6rem 1rem; font: inherit; font-weight: 600; cursor: pointer;
-  color: #fff; background: var(--accent, #2563eb); border: 0; border-radius: 6px; }
+.auth-form { display: grid; gap: 12px; text-align: left; }
+.auth-form h2 { text-align: center; }
+.auth-form label { display: grid; gap: 4px; font-weight: 600; color: var(--text-h); }
+.auth-form input { padding: 8px 10px; font: inherit; color: var(--text-h); background: var(--bg);
+  border: 1px solid var(--border); border-radius: 6px; }
+.auth-form input:focus-visible, .auth-primary:focus-visible, .auth-link:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; }
+.auth-primary { padding: 8px 16px; font: inherit; font-weight: 600; cursor: pointer;
+  color: var(--bg); background: var(--accent); border: 0; border-radius: 6px; }
 .auth-primary:disabled { opacity: 0.6; cursor: wait; }
-.auth-link { background: none; border: 0; font: inherit; color: var(--accent, #2563eb);
-  cursor: pointer; text-decoration: underline; }
-.auth-error { color: #b00020; margin: 0; }
-.app-auth { margin-left: auto; display: flex; align-items: center; gap: 0.6rem; font-size: 0.9rem; }
+.auth-link { background: none; border: 0; font: inherit; color: var(--accent); cursor: pointer; text-decoration: underline; }
+.auth-error { color: light-dark(#b00020, #f87171); }
+.app-auth { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 14px; }
 .app-auth button { font: inherit; cursor: pointer; }

@@ -1,0 +1,24 @@
+/* Uses the app's theme variables from index.css, so light and dark mode both work. */
+.profile-photo { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+.profile-avatar { width: 96px; height: 96px; border-radius: 50%; overflow: hidden; flex: none;
+  display: grid; place-items: center; background: var(--accent-bg); color: var(--accent);
+  font-size: 36px; font-weight: 600; }
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.profile-photo-actions { display: grid; gap: 6px; justify-items: start; }
+
+.profile-form { display: grid; gap: 16px; }
+.profile-form label { display: grid; gap: 4px; font-weight: 600; color: var(--text-h); }
+.profile-form input, .profile-form select { padding: 8px 10px; font: inherit; color: var(--text-h);
+  background: var(--bg); border: 1px solid var(--border); border-radius: 6px; }
+.profile-form input:focus-visible, .profile-form select:focus-visible,
+.profile-button:focus-visible, .profile-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.profile-form input:disabled { opacity: 0.7; }
+.profile-form small, .profile-photo-actions small { font-weight: 400; font-size: 14px; color: var(--text); }
+
+.profile-button { display: inline-block; padding: 8px 16px; font: inherit; font-weight: 600; cursor: pointer;
+  color: var(--bg); background: var(--accent); border: 0; border-radius: 6px; text-align: center; }
+.profile-button:disabled, .profile-button.is-disabled { opacity: 0.6; cursor: wait; }
+.profile-link { background: none; border: 0; padding: 0; font: inherit; color: var(--accent);
+  text-decoration: underline; cursor: pointer; }
+.profile-error { color: light-dark(#b00020, #f87171); }
+.profile-saved { color: light-dark(#1a7f37, #4ade80); }
