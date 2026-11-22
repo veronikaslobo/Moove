@@ -1,0 +1,38 @@
+/* The row of buttons at the top of the Profile tab. Same pill look as the choices in Settings. */
+.profile-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  padding-bottom: 0;
+}
+
+.profile-sections {
+  display: flex;
+  gap: 8px;
+}
+
+.profile-sections button,
+.profile-settings {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.profile-sections button.selected,
+.profile-settings.selected {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 600;
+}

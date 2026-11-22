@@ -119,7 +119,7 @@ export default function ProfileView() {
 
   return (
     <section className="page-content">
-      <h1>Profile</h1>
+      <h1>My details</h1>
 
       <div className="profile-photo">
         <div className="profile-avatar" aria-hidden={photo === null}>

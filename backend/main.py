@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 import config
 from auth import router as auth_router
 from db import init_db
+from favorites import router as favorites_router
 from games import router as games_router
 from posts import router as posts_router
 from user_profile import router as profile_router
@@ -48,4 +49,5 @@ app.include_router(auth_router)
 app.include_router(games_router)
 app.include_router(profile_router)
 app.include_router(posts_router)
+app.include_router(favorites_router)
 # Teammates: add your routers here, e.g. app.include_router(venues_router)

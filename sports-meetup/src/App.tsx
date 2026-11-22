@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import AuthProvider from './auth/AuthProvider.tsx'
+import FavouritesProvider from './features/favourites/FavouritesProvider.tsx'
 import RequireAuth from './auth/RequireAuth.tsx'
 import { useAuth } from './auth/useAuth.ts'
 import CommunityPage from './pages/CommunityPage.tsx'
 import MapPage from './pages/MapPage.tsx'
 import ProfilePage from './pages/ProfilePage.tsx'
-import SettingsPage from './pages/SettingsPage.tsx'
 import type { TabId } from './shared/TabBar.tsx'
 import TabBar from './shared/TabBar.tsx'
 import './shared/AppShell.css'
@@ -47,7 +47,6 @@ function AppContent() {
         {activeTab === 'community' && (
           <RequireAuth feature="the Cowmunity"><CommunityPage /></RequireAuth>
         )}
-        {activeTab === 'settings' && <SettingsPage />}
       </main>
 
       <TabBar activeTab={activeTab} onSelect={setActiveTab} />
@@ -58,7 +57,9 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <FavouritesProvider>
+        <AppContent />
+      </FavouritesProvider>
     </AuthProvider>
   )
 }
