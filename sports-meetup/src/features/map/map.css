@@ -6,35 +6,52 @@
   flex-direction: column;
 }
 
-.venue-map-toolbar {
-  flex-shrink: 0;
+/* The row floating over the top of the map. Leaflet's + / − buttons sit at
+   left 10px and are about 34px wide, so the row starts just after them.
+   Buttons go left, counts go right; when there isn't room for both,
+   flex-wrap moves the counts onto a second line. */
+.venue-map-overlay {
+  top: 10px;
+  left: 54px;
+  right: 10px;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 8px;
-  padding: 8px 16px;
-  border-bottom: 1px solid var(--border);
+  /* The row is as wide as the map, so the empty space between the buttons
+     and the counts must let clicks through to the map. */
+  pointer-events: none;
 }
 
-.venue-map-toolbar select,
-.venue-map-toolbar button {
+.venue-map-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+/* The map tiles are light in both themes, so the floating buttons use fixed
+   light colours (like the popups) instead of the theme variables. */
+.venue-map-controls select,
+.venue-map-controls button {
   padding: 6px 12px;
-  border: 1px solid var(--border);
+  border: 2px solid rgba(0, 0, 0, 0.2); /* same edge as Leaflet's buttons */
   border-radius: 999px;
-  background: var(--bg);
-  color: var(--text-h);
+  background: #fff;
+  color: #08060d;
   font: inherit;
   font-size: 14px;
   cursor: pointer;
 }
 
-.venue-map-toolbar button:hover,
-.venue-map-toolbar select:hover {
-  border-color: var(--accent-border);
+.venue-map-controls button:hover,
+.venue-map-controls select:hover {
+  border-color: #7c3aed;
 }
 
 /* "Group games" / "Free trials": the one currently shown is filled purple. */
-.venue-map-toolbar .mode-button.selected {
+.venue-map-controls .mode-button.selected {
   border-color: #7c3aed;
   background: #7c3aed;
   color: #fff;
@@ -45,9 +62,10 @@
   position: relative;
 }
 
-.venue-map-toolbar .sport-filter-button.active {
-  border-color: var(--accent);
-  background: var(--accent-bg);
+/* Solid light purple: a see-through tint would let the map show through. */
+.venue-map-controls .sport-filter-button.active {
+  border-color: #7c3aed;
+  background: #ede9fe;
 }
 
 .sport-filter-panel {
@@ -92,18 +110,25 @@
   margin-top: 12px;
 }
 
-.venue-map-toolbar .sport-filter-actions button.primary {
+.venue-map-controls .sport-filter-actions button.primary {
   border-color: var(--accent);
   background: var(--accent);
   color: #fff;
 }
 
+/* Counts, on the right of the floating row. */
 .venue-map-legend {
-  margin-left: auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
+  padding: 6px 12px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 999px;
+  background: #fff;
+  color: #08060d;
   font-size: 13px;
+  pointer-events: none; /* it's only information; clicks go to the map */
 }
 
 .legend-dot {
@@ -231,6 +256,7 @@
 }
 
 /* Floating layers must sit above Leaflet's own panes (z-index up to 1000). */
+.venue-map-overlay,
 .venue-map-banner,
 .venue-map-hint,
 .venue-map-sheet {
@@ -238,8 +264,10 @@
   z-index: 1000;
 }
 
+/* At the bottom: the floating row at the top can wrap onto several lines
+   on a phone, so errors there would cover the buttons. */
 .venue-map-banner {
-  top: 12px;
+  bottom: 64px; /* just above the "Tap a dot…" hint */
   left: 50%;
   transform: translateX(-50%);
   max-width: calc(100% - 32px);

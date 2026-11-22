@@ -119,49 +119,54 @@ function VenueMap() {
 
   return (
     <section className="venue-map-page">
-      <div className="venue-map-toolbar">
-        {/* The selected mode is purple (see .mode-button.selected in map.css). */}
-        <button
-          className={mode === 'games' ? 'mode-button selected' : 'mode-button'}
-          onClick={() => setMode('games')}
-        >
-          Group games
-        </button>
-        <button
-          className={mode === 'trials' ? 'mode-button selected' : 'mode-button'}
-          onClick={() => setMode('trials')}
-        >
-          Free trials
-        </button>
-        {mode === "games" && (
-          <SportFilter
-            options={sportsOnMap}
-            selected={selectedSports}
-            onChange={setSelectedSports}
-          />
-        )}
-        {mode === "trials" && <ClubFilter value={clubSport} onChange={setClubSport} />}
-
-        <button onClick={showMyPosition}>Near me</button>
-
-        {mode === "trials" && (
-          <span className="venue-map-legend">{filteredClubs.length} clubs with free trials</span>
-        )}
-        {mode === "games" && (
-        <span className="venue-map-legend">
-          <span className="legend-dot legend-dot-game" /> {gamesByVenueId.size} with games
-          <span className="legend-dot legend-dot-venue" /> {plainVenues.length} places
-          {myPosition && (
-            <>
-              <span className="legend-dot legend-dot-walkable" /> {walkableCount} within{' '}
-              {formatSettingDistance(walkableKm)}
-            </>
-          )}
-        </span>
-        )}
-      </div>
-
       <div className="venue-map-area">
+        {/* One row floating over the top of the map: buttons on the left (just
+            right of the + / − zoom buttons), counts on the right. When there
+            isn't room for both, the counts wrap onto a line underneath. */}
+        <div className="venue-map-overlay">
+          <div className="venue-map-controls">
+            {/* The selected mode is purple (see .mode-button.selected in map.css). */}
+            <button
+              className={mode === 'games' ? 'mode-button selected' : 'mode-button'}
+              onClick={() => setMode('games')}
+            >
+              Group games
+            </button>
+            <button
+              className={mode === 'trials' ? 'mode-button selected' : 'mode-button'}
+              onClick={() => setMode('trials')}
+            >
+              Free trials
+            </button>
+            {mode === 'games' && (
+              <SportFilter
+                options={sportsOnMap}
+                selected={selectedSports}
+                onChange={setSelectedSports}
+              />
+            )}
+            {mode === 'trials' && <ClubFilter value={clubSport} onChange={setClubSport} />}
+
+            <button onClick={showMyPosition}>Near me</button>
+          </div>
+
+          {mode === 'trials' && (
+            <div className="venue-map-legend">{filteredClubs.length} clubs with free trials</div>
+          )}
+          {mode === 'games' && (
+            <div className="venue-map-legend">
+              <span className="legend-dot legend-dot-game" /> {gamesByVenueId.size} with games
+              <span className="legend-dot legend-dot-venue" /> {plainVenues.length} places
+              {myPosition && (
+                <>
+                  <span className="legend-dot legend-dot-walkable" /> {walkableCount} within{' '}
+                  {formatSettingDistance(walkableKm)}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* preferCanvas: draws the 3,000+ dots on one canvas instead of
             3,000 separate page elements, which keeps the map smooth. */}
         <MapContainer
