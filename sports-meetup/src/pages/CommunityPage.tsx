@@ -5,7 +5,7 @@ import CommunityPosts from '../features/posts/CommunityPosts.tsx'
 function CommunityPage() {
   return (
     <div className="page-content">
-      <h1>Community</h1>
+      <h1>Cowmunity</h1>
       <CommunityPosts />
 
       <h2>Upcoming games</h2>
