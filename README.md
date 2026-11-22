@@ -2,7 +2,7 @@
 
 **It's Friday evening. What can I join tonight, near me?**
 
-SportsMap puts every public sports facility in Montréal on one map, and lets
+Moove puts every public sports facility in Montréal on one map, and lets
 people post pickup games there and join each other's. Built for CodeJam 2026
 
 
@@ -71,7 +71,7 @@ each browser gets its own user id.
 | Frontend | React + TypeScript, Vite |
 | Map | Leaflet (via react-leaflet), OpenStreetMap tiles |
 | Backend | Python, FastAPI |
-| Database | SQLite (one file, `backend/sportsmap.db`, created on first run) |
+| Database | SQLite (one file, `backend/Moove.db`, created on first run) |
 
 ## Project structure
 
