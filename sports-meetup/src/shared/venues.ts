@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { distanceKm } from './geo.ts'
 import { sportFromFacilityName, sportsFromOsmTag } from './sports.ts'
 
 // The shared venue shape every feature uses.
@@ -13,6 +14,9 @@ export type Venue = {
   sports: string[] // sport slugs from sports.ts
   // City venues only: the park the facility is in, e.g. "Parc Jarry".
   parkName?: string
+  // City venues only: ids of the duplicates folded into this one (see
+  // mergeSameSpot). Games saved with one of those ids show up here.
+  mergedIds?: string[]
   // Extra info, only for OpenStreetMap venues (the city file has none).
   // Each field is there only when volunteers entered it in OpenStreetMap.
   details?: VenueDetails
@@ -63,6 +67,37 @@ function toVenues(facilities: CityFacility[], parkNames: ParkNames): Venue[] {
     })
   }
   return venues
+}
+
+// The city lists each court or field separately, and sometimes a field twice
+// (a full soccer field, plus its two halves). That stacks several identical
+// dots on one spot: Parc Marcel-Laurin had 8 soccer dots. Facilities in the
+// same park, for the same sport, within this distance become one dot.
+const SAME_SPOT_KM = 0.15
+
+function mergeSameSpot(venues: Venue[]): Venue[] {
+  const kept: Venue[] = []
+  for (const venue of venues) {
+    const twin = venue.parkName
+      ? kept.find(
+          (other) =>
+            other.parkName === venue.parkName &&
+            other.sports[0] === venue.sports[0] &&
+            distanceKm([other.lat, other.lng], [venue.lat, venue.lng]) <= SAME_SPOT_KM,
+        )
+      : undefined // without a park we can't tell if it's the same place
+
+    if (!twin) {
+      kept.push({ ...venue }) // a copy, so merging below doesn't change the original
+      continue
+    }
+    twin.mergedIds = [...(twin.mergedIds ?? []), venue.id]
+    // "Soccer à 11" + "Soccer sous-terrain à 7" → "Soccer à 11 · Soccer sous-terrain à 7"
+    if (!twin.name.split(' · ').includes(venue.name)) {
+      twin.name = `${twin.name} · ${venue.name}`
+    }
+  }
+  return kept
 }
 
 type OsmFacility = {
@@ -197,7 +232,7 @@ export function loadVenues(): Promise<Venue[]> {
       parkNamesRequest,
     ])
       .then(([cityFeatures, indoorFeatures, parkNames]) => [
-        ...toVenues(cityFeatures as CityFacility[], parkNames),
+        ...mergeSameSpot(toVenues(cityFeatures as CityFacility[], parkNames)),
         ...osmToVenues(indoorFeatures as OsmFacility[]),
       ])
       .catch((error) => {
@@ -218,7 +253,13 @@ export function useVenues() {
       .catch(() => setHasFailed(true))
   }, [])
 
-  const venuesById = new Map(venues.map((venue) => [venue.id, venue]))
+  // A merged venue is also found under the ids of the duplicates it replaced,
+  // so a game saved at one of those still lands on the right dot.
+  const venuesById = new Map<string, Venue>()
+  for (const venue of venues) {
+    venuesById.set(venue.id, venue)
+    for (const mergedId of venue.mergedIds ?? []) venuesById.set(mergedId, venue)
+  }
   return { venues, venuesById, hasFailed }
 }
 

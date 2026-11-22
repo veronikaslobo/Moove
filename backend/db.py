@@ -64,6 +64,22 @@ create table if not exists login_attempts (
 );
 create index if not exists login_attempts_email on login_attempts(email, attempted_at);
 create index if not exists login_attempts_ip on login_attempts(ip, attempted_at);
+
+-- Profiles. No row yet = an empty profile. Every field is optional.
+create table if not exists profiles (
+    user_id      text primary key references users(id) on delete cascade,
+    display_name text,
+    birth_year   integer,
+    gender       text check (gender in ('woman', 'man', 'non_binary', 'other', 'prefer_not_to_say')),
+    updated_at   text not null default (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
+);
+
+-- The picture lives in its own table so loading a profile never drags the image bytes along.
+create table if not exists profile_pictures (
+    user_id    text primary key references users(id) on delete cascade,
+    image      blob not null,
+    updated_at text not null
+);
 """
 
 

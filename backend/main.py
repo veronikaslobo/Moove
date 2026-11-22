@@ -10,6 +10,7 @@ import config
 from auth import router as auth_router
 from db import init_db
 from games import router as games_router
+from user_profile import router as profile_router
 
 init_db()
 
@@ -38,10 +39,11 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=config.ALLOWED_ORIGINS,
     allow_credentials=True,  # lets the browser send and accept the session cookie
-    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type"],
 )
 
 app.include_router(auth_router)
 app.include_router(games_router)
+app.include_router(profile_router)
 # Teammates: add your routers here, e.g. app.include_router(venues_router)
