@@ -1,7 +1,6 @@
-import { divIcon } from 'leaflet'
 import { Marker, Popup } from 'react-leaflet'
 import type { Club, ClubSport } from '../data/clubs.ts'
-import './ClubMarkers.css'
+import { clubCowIcon } from './cowIcon.ts'
 
 // One emoji per sport. Record<ClubSport, string> means "an object with
 // exactly one entry for every ClubSport". If someone adds a new sport to
@@ -12,31 +11,6 @@ const SPORT_EMOJI: Record<ClubSport, string> = {
   dance: '💃',
   fencing: '🤺',
   boxing: '🥊',
-}
-
-// A divIcon is a marker made of plain HTML + CSS instead of an image file.
-// (Leaflet's default pin is an image that often fails to load with Vite.)
-function makeIcon(sport: ClubSport) {
-  return divIcon({
-    className: 'club-pin', // styled in ClubMarkers.css
-    // The teardrop shape is an inner element, not the marker itself: Leaflet
-    // moves the marker into place with a CSS transform, and rotating that same
-    // element would rotate the move too, sending pins off to the wrong spot.
-    html: `<div class="club-pin-shape"><span>${SPORT_EMOJI[sport]}</span></div>`,
-    iconSize: [34, 34],
-    iconAnchor: [17, 34], // which pixel sits on the exact location: bottom-centre = the pin's tip
-    popupAnchor: [0, -32], // open the popup just above the pin
-  })
-}
-
-// Build the 5 icons ONCE, when the file loads, instead of 24 new icons on
-// every re-render. Same result, less work.
-const ICONS: Record<ClubSport, ReturnType<typeof makeIcon>> = {
-  tennis: makeIcon('tennis'),
-  mma: makeIcon('mma'),
-  dance: makeIcon('dance'),
-  fencing: makeIcon('fencing'),
-  boxing: makeIcon('boxing'),
 }
 
 // Props = the inputs a component receives from its parent.
@@ -54,7 +28,7 @@ function ClubMarkers({ clubs }: ClubMarkersProps) {
         <Marker
           key={club.id} // lets React tell the markers apart when the list changes
           position={[club.lat, club.lng]}
-          icon={ICONS[club.sport]}
+          icon={clubCowIcon(SPORT_EMOJI[club.sport])} // a Moove cow wearing the sport's emoji
         >
           <Popup>
             <p className="venue-popup-title">{club.name}</p>
