@@ -18,6 +18,7 @@ import { useVenues, venueDisplayName } from '../../shared/venues.ts'
 import './map.css'
 import { CLUB_SPORTS, clubs } from '../../data/clubs.ts'
 import ClubMarkers from '../../components/ClubMarkers.tsx'
+import { gameCowIcon } from '../../components/cowIcon.ts'
 
 const MONTREAL_CENTER: [number, number] = [45.5019, -73.5674]
 
