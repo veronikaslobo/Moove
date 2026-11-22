@@ -24,7 +24,18 @@ function Icon({ children }: { children: ReactNode }) {
 }
 
 // To add or rename a tab: change this list, then add its page in App.tsx.
+// The order here is the order on screen; Map sits near the middle, within
+// easy reach of the thumb.
 const TABS: { id: TabId; label: string; icon: ReactNode }[] = [
+  {
+    id: 'community',
+    label: 'Community',
+    icon: (
+      <Icon>
+        <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" />
+      </Icon>
+    ),
+  },
   {
     id: 'map',
     label: 'Map',
@@ -42,15 +53,6 @@ const TABS: { id: TabId; label: string; icon: ReactNode }[] = [
       <Icon>
         <circle cx="12" cy="8" r="4" />
         <path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" />
-      </Icon>
-    ),
-  },
-  {
-    id: 'community',
-    label: 'Community',
-    icon: (
-      <Icon>
-        <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" />
       </Icon>
     ),
   },
