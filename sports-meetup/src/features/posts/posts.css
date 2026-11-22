@@ -1,0 +1,148 @@
+.community-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+/* "Let's get mooving!": reads as a big friendly line, but looks tappable
+   (rounded box, purple on hover) so people discover they can write a post. */
+.post-prompt {
+  width: 100%;
+  padding: 16px 20px;
+  border: 2px dashed var(--accent-border);
+  border-radius: 16px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font: inherit;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: left;
+  cursor: text; /* hints "you can type here" */
+}
+
+.post-prompt:hover,
+.post-prompt:focus-visible {
+  border-style: solid;
+  border-color: var(--accent);
+  outline: none;
+}
+
+.post-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 2px solid var(--accent);
+  border-radius: 16px;
+  background: var(--bg);
+}
+
+.post-composer textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-h);
+  font: inherit;
+  font-size: 16px; /* 16px+ stops iPhones zooming in on the box */
+  resize: vertical;
+}
+
+.post-composer textarea:focus {
+  outline: none;
+}
+
+.post-composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.post-composer-count {
+  margin-right: auto;
+  font-size: 13px;
+}
+
+.post-composer-actions button,
+.post-card-delete {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.post-composer-actions button.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.post-composer-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.posts-problem {
+  padding: 8px 12px;
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  background: var(--accent-bg);
+  color: var(--text-h);
+}
+
+.post-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.post-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.post-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.post-card-author {
+  color: var(--text-h);
+  font-weight: 600;
+}
+
+.post-card-body {
+  color: var(--text-h);
+  font-size: 16px;
+  white-space: pre-wrap; /* keep the line breaks people typed */
+  overflow-wrap: anywhere; /* long links don't stretch the page */
+}
+
+.post-card-delete {
+  align-self: flex-end;
+  padding: 4px 12px;
+  font-size: 13px;
+}
+
+.post-card-delete:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
