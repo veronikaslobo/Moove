@@ -1,32 +1,54 @@
-# Moove
+<p align="center">
+  <img src="docs/banner.svg" alt="Moove: Cows touch grass and so should you." width="100%">
+</p>
 
-**It's Friday evening. What can I join tonight, near me?**
+<h1 align="center">Moove</h1>
 
-Moove puts every public sports facility in Montréal on one map, and lets
-people post pickup games there and join each other's. Built for CodeJam 2026
+<h3 align="center">🐄 Cows touch grass and so should you. 🌱</h3>
 
+<p align="center">
+  <b>It's Friday evening. What can I join tonight, near me?</b><br>
+  Moove puts every public sports spot in Montréal on one map, so you can find a
+  pickup game, join it, or start your own.
+</p>
 
-## Features
+<p align="center">
+  <img alt="React" src="https://img.shields.io/badge/React-19-7c3aed?logo=react&logoColor=white">
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-7c3aed?logo=typescript&logoColor=white">
+  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-22c55e?logo=fastapi&logoColor=white">
+  <img alt="SQLite" src="https://img.shields.io/badge/SQLite-22c55e?logo=sqlite&logoColor=white">
+  <img alt="Leaflet" src="https://img.shields.io/badge/Leaflet-OpenStreetMap-22c55e?logo=leaflet&logoColor=white">
+  <img alt="CodeJam 2026" src="https://img.shields.io/badge/CodeJam-2026-4c1d95">
+</p>
 
-- **Interactive map** of 2,000+ places to play: public courts, fields, rinks
-  and pools from the City of Montréal's open data, plus indoor gyms, arenas,
-  climbing walls and studios from OpenStreetMap. Filter by one or several
-  sports, or tap "Near me".
-- **Pickup games on the map.** Purple dots are venues with upcoming games. Tap
-  one to see its games and **Join** or **Leave**. Grey dots are venues without
-  games: tap one to **create a game** there.
-- **Live spot counts.** "Spots left" refreshes every 5 seconds, and the last
-  spot can never be taken twice: the backend checks it inside a locked
-  database transaction.
-- **Get there without a car.** Every popup has Walk, Bike and Transit buttons
-  that open directions in Google Maps. After "Near me", spots within 1 km turn
-  green and popups show the distance and a walking or biking time, so the
-  closest, car-free options stand out. We show no CO₂ numbers on purpose,
-  because we have no reliable source for them.
-- **Community tab** listing every upcoming game, soonest first.
-- **Profile** and **Settings** tabs (in progress).
+---
 
-## Running it locally
+## 🌱 Why Moove?
+
+Most of Montréal's courts, fields and rinks sit empty on a Friday night, while
+plenty of people would play if they only knew where a game was. Moove shows
+**where you can play** and **who's playing tonight**, and nudges you to get there
+on foot or by bike.
+
+## 🐮 Features
+
+| | |
+|---|---|
+| 🗺️ **One map, 1,600+ places** | Public courts, fields, rinks and pools from the City of Montréal, plus indoor gyms, arenas, climbing walls and studios from OpenStreetMap. Duplicates on the same field are merged into one dot. |
+| 🏐 **Pickup games** | Purple cows are places with upcoming games: tap one to **join** or **leave**. Tap any grey dot to **create a game** there. |
+| 🌙 **Today** | One tap hides the empty places and shows only today's games (until 4 a.m., for the late Friday crowd). |
+| 🎾 **Free trials** | Clubs offering a free first class (tennis, MMA / BJJ, dance, fencing, boxing), with the same multi-sport filter as games. |
+| 🚶 **Get there without a car** | Walk, Bike and Transit buttons open directions. After **Near me**, places within your walking distance turn green. We show no CO₂ numbers on purpose: we have no reliable source for them. |
+| 📍 **Place info** | Park name, sports, and for indoor places the address, opening hours, website, phone, free entry and wheelchair access, when the data has them. |
+| 👥 **Moomates** | Hosts see who's coming to their games, with names and profile pictures. No emails are ever shared. |
+| 🔒 **Accounts** | Sign up with email and password, 18+ only (younger visitors are told to *go back to school, baby cow*). |
+| 💬 **Community** | Every upcoming game and posts from other players. Save the games, trials and posts you like as favourites. |
+| ⚙️ **Settings** | Your own walking distance, and light / dark / device theme. |
+
+The last spot in a game can never be taken twice: the backend checks it inside a
+locked database transaction, and spot counts refresh every 5 seconds.
+
+## 🚀 Running it locally
 
 You need **Python 3.10+** and **Node.js 20+**. The app runs as two servers, each
 in its own terminal.
@@ -44,12 +66,12 @@ uvicorn main:app --reload
 
 On macOS/Linux, activate the venv with `source .venv/bin/activate` instead.
 
-`python seed.py` fills the database with 5 fake games. Their start times are
-relative to when you run it (2 to 26 hours later), so **run it again** whenever
-the map shows no games. It wipes all existing games first.
-
-The API's test page is at http://localhost:8000/docs: you can try every
-endpoint there without the frontend.
+- `python seed.py` fills the database with fake games starting 2 to 26 hours
+  after you run it. Run it again whenever the map shows no games (it wipes
+  existing games first).
+- **After every `git pull`**, run `pip install -r requirements.txt` again if
+  `backend/` changed. A missing package makes the backend hang on startup.
+- The API's test page is at http://localhost:8000/docs.
 
 ### 2. Frontend (React, port 5173)
 
@@ -59,27 +81,38 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173.
+Open http://localhost:5173. To test as two people on one computer, use a second,
+private window and a second account.
 
-To test as two different people on one computer, open a second, private window:
-each browser gets its own user id.
+### Tests
 
-## Tech stack
+```powershell
+cd backend
+pip install pytest httpx
+pytest -q
+```
+
+## 🧰 Tech stack
 
 | Part | Tech |
 |---|---|
 | Frontend | React + TypeScript, Vite |
 | Map | Leaflet (via react-leaflet), OpenStreetMap tiles |
 | Backend | Python, FastAPI |
-| Database | SQLite (one file, `backend/Moove.db`, created on first run) |
+| Database | SQLite (one file, `backend/sportsmap.db`, created on first run) |
+| Accounts | Argon2id password hashes, session cookie |
 
-## Project structure
+## 🗂️ Project structure
 
 ```
 backend/
-  main.py           App setup and CORS; teammates register their routers here
+  main.py           App setup, CORS, routers
   db.py             Database tables, and the locked write transaction
-  games.py          Games API: feed, create, join, leave
+  auth.py           Sign up (18+), log in, log out
+  games.py          Games: feed, create, join, leave, cancel, moomates
+  user_profile.py   Profile: name, birth year, gender, picture
+  posts.py          Community posts
+  favorites.py      Favourite games, trials and posts
   seed.py           Fake games for testing
 
 sports-meetup/
@@ -91,17 +124,21 @@ sports-meetup/
     build-park-names.cjs     Rebuilds park_names.json from the city's parks file
   src/
     App.tsx           App shell: header, current page, tab bar
-    pages/            One file per tab (Map, Profile, Community, Settings)
+    pages/            One file per tab (Community, Map, Profile, Settings)
+    auth/             Log-in / sign-up form and session
     features/
-      map/            The map: venue dots, game dots, popups
-      games/          Game cards, create form, backend calls, live refresh
+      map/            Map, venue dots, filters, popups
+      games/          Game cards, create form, moomates list, live refresh
     shared/
       sports.ts       THE sports list used everywhere (see below)
-      venues.ts       Loads venues from both data files
-      TabBar.tsx      Bottom tab bar
+      venues.ts       Loads and merges venues from the data files
+      preferences.ts  Settings saved in the browser
+
+docs/
+  banner.svg        The banner at the top of this page
 ```
 
-## Shared conventions
+## 🤝 Shared conventions
 
 These are used by every feature, so change them in one place only:
 
@@ -109,41 +146,53 @@ These are used by every feature, so change them in one place only:
   compares the `slug` (`basketball`, `outdoor-gym`…) and shows the `label`. The
   `keywords` decide which sport a city facility is, from its name, and the
   `osmTags` do the same for indoor places, from their OpenStreetMap `sport` tag.
-- **Venues** have the shape `{ id, name, borough, lat, lng, sports, details? }`.
-  `details` (address, website, phone, opening hours, wheelchair access, fee)
-  only exists for OpenStreetMap places, and only with the fields they have. The `id`
-  is `mtl:` plus the city's facility ID (for example `mtl:049-0030`), and
-  games store it as `venue_id`.
+- **Venues** have the shape `{ id, name, borough, lat, lng, sports, parkName?, mergedIds?, details? }`.
+  The `id` is `mtl:` plus the city's facility ID (for example `mtl:049-0030`) or
+  `osm:` plus the OpenStreetMap ID, and games store it as `venue_id`.
 - **Spots left** is never stored. The backend computes it as total spots minus
   the number of players.
 
-## API
+## 🔌 API
+
+Requests that change data need to be logged in (session cookie).
 
 | Method | Path | Does |
 |---|---|---|
+| `POST` | `/auth/register` | Sign up: email, password, `birth_date` (`403 under_minimum_age` if under 18) |
+| `POST` | `/auth/login` · `/auth/logout` | Log in / out |
+| `GET` | `/auth/me` | The logged-in user |
 | `GET` | `/games?sports=basketball,soccer` | Upcoming games, soonest first, with `spots_left` |
 | `POST` | `/games` | Create a game; the host becomes its first player |
-| `POST` | `/games/{id}/join` | Join (`409 game_full` if no spot is left) |
-| `DELETE` | `/games/{id}/join` | Leave |
+| `POST` · `DELETE` | `/games/{id}/join` | Join (`409 game_full` if no spot is left) / leave |
+| `GET` | `/games/{id}/players` | Moomates: who's coming (host only) |
 | `DELETE` | `/games/{id}` | Cancel a game (host only, `403 not_host` otherwise) |
+| `GET` · `PUT` | `/profile` | Your profile |
+| `PUT` · `DELETE` | `/profile/picture` | Upload / remove your picture |
+| `GET` · `POST` | `/posts` | Community posts: read / write |
+| `DELETE` | `/posts/{id}` | Delete a post |
+| `GET` | `/favorites` | Your favourite games, trials and posts |
+| `PUT` · `DELETE` | `/favorites/{kind}/{id}` | Add / remove a favourite (`kind` = `game`, `trial` or `post`) |
 
-Requests that change data need an `X-User-Id` header (see below).
+The full, clickable list is at http://localhost:8000/docs.
 
-## Known limitations
+## ⚠️ Known limitations
 
-- **No real login yet.** Each browser makes up a random user id and keeps it
-  in local storage. It will be replaced by the profile feature.
-- **The database is local.** Every teammate has their own copy, so a game
-  created on one laptop doesn't appear on another, except when running a
-  shared or deployed backend.
+- **The database is local.** Each teammate has their own copy, so a game created
+  on one laptop doesn't appear on another unless everyone uses one shared backend.
 - **"Live" means polling.** Spot counts refresh every 5 seconds, not instantly.
+- **Indoor data is patchy.** OpenStreetMap is crowd-sourced, so some places have
+  an address and hours and others only a name.
 
-## Data and credits
+## 🙏 Data and credits
 
 - Outdoor sports facilities: [Ville de Montréal open data](https://donnees.montreal.ca),
   licence CC-BY 4.0.
 - Park names: [Ville de Montréal, Grands parcs, parcs d'arrondissements et espaces publics](https://donnees.montreal.ca/dataset/grands-parcs-parcs-d-arrondissements-et-espaces-publics),
   licence CC-BY 4.0.
 - Indoor facilities and map tiles: © [OpenStreetMap](https://www.openstreetmap.org/copyright)
-  contributors. The facility data is available under the Open Database
-  Licence (ODbL).
+  contributors, Open Database Licence (ODbL).
+
+<p align="center">
+  <img src="sports-meetup/public/moove-cow-head.png" alt="" width="48"><br>
+  <sub>Made with 💜 and a lot of grass in Montréal for CodeJam 2026.</sub>
+</p>
