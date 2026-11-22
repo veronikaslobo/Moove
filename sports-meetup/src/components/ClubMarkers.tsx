@@ -1,5 +1,6 @@
 import { Marker, Popup } from 'react-leaflet'
 import type { Club, ClubSport } from '../data/clubs.ts'
+import FavouriteButton from '../features/favourites/FavouriteButton.tsx'
 import { clubCowIcon } from './cowIcon.ts'
 
 // One emoji per sport. Record<ClubSport, string> means "an object with
@@ -31,7 +32,10 @@ function ClubMarkers({ clubs }: ClubMarkersProps) {
           icon={clubCowIcon(SPORT_EMOJI[club.sport])} // a Moove cow wearing the sport's emoji
         >
           <Popup>
-            <p className="venue-popup-title">{club.name}</p>
+            <div className="fav-title-row">
+              <p className="venue-popup-title">{club.name}</p>
+              <FavouriteButton kind="trial" id={club.id} label="this free trial" />
+            </div>
             {/* Only show the styles line if this club has one. */}
             {club.styles && <p>{club.styles}</p>}
             <p className="venue-popup-borough">

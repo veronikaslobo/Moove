@@ -89,6 +89,30 @@ create table if not exists posts (
     created_at text    not null default (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
 );
 create index if not exists posts_newest on posts(created_at);
+
+-- Favourites: one row per (user, kind, item). "kind" says what item_id points to:
+--   game  = games.id        post = posts.id
+--   trial = a club id from the frontend's data/clubs.ts (clubs are not stored in the database)
+create table if not exists favorites (
+    user_id    text not null references users(id) on delete cascade,
+    kind       text not null check (kind in ('game', 'trial', 'post')),
+    item_id    text not null,
+    created_at text not null default (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
+    primary key (user_id, kind, item_id)
+);
+create index if not exists favorites_by_item on favorites(kind, item_id);
+
+-- A favourite can also be a free trial, so it cannot be a real "references" link to one table.
+-- These triggers do the cleanup by hand: cancel a game or delete a post and the hearts go with it.
+create trigger if not exists games_delete_favorites after delete on games
+begin
+    delete from favorites where kind = 'game' and item_id = cast(old.id as text);
+end;
+
+create trigger if not exists posts_delete_favorites after delete on posts
+begin
+    delete from favorites where kind = 'post' and item_id = cast(old.id as text);
+end;
 """
 
 

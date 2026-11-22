@@ -1,0 +1,94 @@
+/* ---------- The heart button (game cards, free-trial popups, posts, this page) ---------- */
+
+/* The colour comes from a variable, so the rules below can win against the
+   buttons' own styles (.game-card button, .venue-popup-games .game-card button)
+   without having to fight over colours. */
+.fav-button { --fav-color: var(--text); }
+.fav-button.is-saved { --fav-color: var(--accent); }
+/* Map popups are white in both themes, like the rest of map.css. */
+.venue-map .leaflet-popup-content .fav-button { --fav-color: #6b6375; }
+.venue-map .leaflet-popup-content .fav-button.is-saved { --fav-color: #7c3aed; }
+
+button.fav-button,
+.game-card button.fav-button,
+.venue-popup-games .game-card button.fav-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--fav-color);
+  cursor: pointer;
+}
+
+.fav-button:hover:not(:disabled) { transform: scale(1.12); }
+.fav-button:disabled { opacity: 0.45; cursor: not-allowed; }
+.fav-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* Heart beside a title: game cards and free-trial popups. */
+.game-card .game-card-title,
+.fav-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.game-card .game-card-title { justify-content: flex-start; margin-bottom: 4px; }
+.game-card .game-card-title h2 { margin-bottom: 0; }
+
+/* Posts: heart on the left, Delete (when it's yours) on the right. */
+.post-card-actions { display: flex; align-items: center; justify-content: space-between; }
+
+/* ---------- The Favourites page ---------- */
+
+.favourites { text-align: left; }
+.favourites h2 { margin: 28px 0 10px; font-size: 20px; }
+.favourites-count {
+  margin-left: 6px;
+  padding: 1px 9px;
+  border-radius: 999px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  vertical-align: middle;
+}
+.favourites-empty { color: var(--text); font-size: 15px; }
+.favourites-problem {
+  padding: 8px 12px;
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  background: var(--accent-bg);
+  color: var(--text-h);
+}
+
+.favourites-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.favourite-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.favourite-card.is-past { opacity: 0.65; }
+.favourite-card-main { min-width: 0; }
+.favourite-card-main p { font-size: 14px; }
+.favourite-card-title { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.favourite-card h3 { margin: 0; font-size: 17px; font-weight: 600; color: var(--text-h); }
+.favourite-tag {
+  padding: 1px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px;
+}
+.favourite-card-meta, .favourite-card-notes { color: var(--text); }
+.favourite-card-notes { font-style: italic; }
+.favourite-card-body { color: var(--text-h); white-space: pre-wrap; overflow-wrap: anywhere; font-size: 15px; }
+.favourite-card a { color: var(--accent); font-size: 14px; }

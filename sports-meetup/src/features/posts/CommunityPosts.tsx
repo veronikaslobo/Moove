@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Post } from './api.ts'
 import { createPost, deletePost, listPosts, MAX_POST_LENGTH } from './api.ts'
+import FavouriteButton from '../favourites/FavouriteButton.tsx'
 import './posts.css'
 
 // "5 min ago", "yesterday", "3 days ago"…
@@ -127,11 +128,14 @@ function CommunityPosts() {
                   <time dateTime={post.created_at}>{timeAgo(post.created_at)}</time>
                 </div>
                 <p className="post-card-body">{post.body}</p>
-                {post.mine && (
-                  <button type="button" className="post-card-delete" onClick={() => remove(post.id)}>
-                    Delete
-                  </button>
-                )}
+                <div className="post-card-actions">
+                  <FavouriteButton kind="post" id={post.id} label="this post" />
+                  {post.mine && (
+                    <button type="button" className="post-card-delete" onClick={() => remove(post.id)}>
+                      Delete
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>

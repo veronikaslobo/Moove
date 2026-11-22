@@ -1,6 +1,7 @@
 import { sportLabel } from '../../shared/sports.ts'
 import type { Game, SkillLevel } from './api.ts'
 import { useAuth } from '../../auth/useAuth.ts'
+import FavouriteButton from '../favourites/FavouriteButton.tsx'
 import GamePlayers from './GamePlayers.tsx'
 import './games.css'
 
@@ -73,7 +74,10 @@ function GameCard({ game, venueName, onJoin, onLeave, onCancel }: GameCardProps)
   return (
     <li className="game-card">
       <div className="game-card-info">
-        <h2>{sportLabel(game.sport)}</h2>
+        <div className="game-card-title">
+          <h2>{sportLabel(game.sport)}</h2>
+          <FavouriteButton kind="game" id={game.id} label="this game" />
+        </div>
         <p>{formatStartTime(game.starts_at)}</p>
         <p>{venueName}</p>
         <p>
