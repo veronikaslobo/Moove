@@ -134,6 +134,45 @@ def leave_game(game_id: int, user: dict = Depends(require_user)):
     return {"joined": False}
 
 
+# Name and picture come from the profile, which may not exist yet (left join).
+# Emails are never sent: the host sees who is coming, not how to reach them.
+PLAYERS_QUERY = """
+select p.user_id,
+       pr.display_name,
+       pic.user_id is not null      as has_picture,
+       p.user_id = g.host_id        as is_host,
+       p.joined_at
+from game_players p
+join games g                   on g.id = p.game_id
+left join profiles pr          on pr.user_id = p.user_id
+left join profile_pictures pic on pic.user_id = p.user_id
+where p.game_id = ?
+order by is_host desc, p.joined_at, p.rowid  -- rowid: join order when two share a second
+"""
+
+
+@router.get("/{game_id}/players")
+def list_players(game_id: int, user: dict = Depends(require_user)):
+    """Who joined this game, host first, then in the order they joined. Host only."""
+    conn = connect()
+    try:
+        game = conn.execute("select host_id from games where id = ?", (game_id,)).fetchone()
+        if game is None:
+            raise HTTPException(status_code=404, detail="game_not_found")
+        if game["host_id"] != user["id"]:
+            raise HTTPException(status_code=403, detail="not_host")
+        rows = conn.execute(PLAYERS_QUERY, (game_id,)).fetchall()
+    finally:
+        conn.close()
+
+    players = [dict(row) for row in rows]
+    for player in players:
+        # SQLite has no true/false, only 1/0.
+        player["has_picture"] = bool(player["has_picture"])
+        player["is_host"] = bool(player["is_host"])
+    return players
+
+
 @router.delete("/{game_id}")
 def delete_game(game_id: int, user: dict = Depends(require_user)):
     """Cancel a game. Only its host may do this."""

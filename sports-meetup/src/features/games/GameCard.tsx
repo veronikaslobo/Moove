@@ -1,6 +1,7 @@
 import { sportLabel } from '../../shared/sports.ts'
 import type { Game, SkillLevel } from './api.ts'
 import { useAuth } from '../../auth/useAuth.ts'
+import GamePlayers from './GamePlayers.tsx'
 import './games.css'
 
 type GameCardProps = {
@@ -82,6 +83,9 @@ function GameCard({ game, venueName, onJoin, onLeave, onCancel }: GameCardProps)
         </p>
         {game.notes && <p className="game-card-notes">{game.notes}</p>}
         {isHost && <p className="game-card-host">You're hosting</p>}
+        {isHost && (
+          <GamePlayers gameId={game.id} playerCount={game.total_spots - game.spots_left} />
+        )}
       </div>
       {actionButton}
     </li>

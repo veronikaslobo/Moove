@@ -24,8 +24,13 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) =>
     setUser(await api<User>('/auth/login', { method: 'POST', body: { email, password } }))
 
-  const register = async (email: string, password: string) =>
-    setUser(await api<User>('/auth/register', { method: 'POST', body: { email, password } }))
+  const register = async (email: string, password: string, birthDate: string) =>
+    setUser(
+      await api<User>('/auth/register', {
+        method: 'POST',
+        body: { email, password, birth_date: birthDate },
+      }),
+    )
 
   const logout = async () => {
     try {
