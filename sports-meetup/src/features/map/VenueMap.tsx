@@ -31,6 +31,21 @@ const ME_STYLE = { color: '#1d4ed8', fillColor: '#3b82f6', fillOpacity: 0.9, wei
 // toward spots they can reach without a car.
 const WALKABLE_STYLE = { color: '#15803d', fillColor: '#22c55e', fillOpacity: 0.9, weight: 1 }
 
+// "Today" = from now until 4 a.m. Games after midnight still count as
+// today (a late Friday game), so the day ends at 4 a.m., not midnight.
+const NIGHT_ENDS_AT_HOUR = 4
+
+function endOfToday(now: Date): Date {
+  const end = new Date(now)
+  end.setHours(NIGHT_ENDS_AT_HOUR, 0, 0, 0) // 4 a.m. today, local time
+  if (end <= now) end.setDate(end.getDate() + 1) // already past it: tomorrow 4 a.m.
+  return end
+}
+
+function startsToday(game: Game): boolean {
+  return new Date(game.starts_at) < endOfToday(new Date())
+}
+
 function VenueMap() {
   const { venues, venuesById, hasFailed: venuesFailed } = useVenues()
   const { games, hasLoadFailed, errorMessage, loadGames, join, leave, cancel } = useGames()
@@ -39,6 +54,8 @@ function VenueMap() {
 
   // Sports ticked in the filter. Empty = show every sport.
   const [selectedSports, setSelectedSports] = useState<string[]>([])
+  // On: only games starting before the night ends (see startsToday).
+  const [onlyToday, setOnlyToday] = useState(false)
   const [map, setMap] = useState<LeafletMap | null>(null)
   const [mode, setMode] = useState<"games" | "trials">("games");
   const [clubSport, setClubSport] = useState("all");
@@ -70,6 +87,7 @@ function VenueMap() {
   const gamesByVenueId = new Map<string, Game[]>()
   for (const game of games) {
     if (!matchesFilter(game.sport)) continue
+    if (onlyToday && !startsToday(game)) continue
     // A game whose venue isn't in the data file has no place on the map
     // (e.g. old test games), so it isn't drawn or counted.
     if (!venuesById.has(game.venue_id)) continue
@@ -79,9 +97,12 @@ function VenueMap() {
   }
 
   // Venues with games get their own marker below, so skip them here.
-  const plainVenues = venues.filter(
-    (venue) => venue.sports.some(matchesFilter) && !gamesByVenueId.has(venue.id),
-  )
+  // With "Today" on, the map shows games only: no empty places.
+  const plainVenues = onlyToday
+    ? []
+    : venues.filter(
+        (venue) => venue.sports.some(matchesFilter) && !gamesByVenueId.has(venue.id),
+      )
 
   function isWalkable(venue: Venue): boolean {
     if (!myPosition) return false // we don't know where the user is yet
@@ -139,6 +160,15 @@ function VenueMap() {
               Free trials
             </button>
             {mode === 'games' && (
+              <button
+                className={onlyToday ? 'today-button active' : 'today-button'}
+                aria-pressed={onlyToday}
+                onClick={() => setOnlyToday(!onlyToday)}
+              >
+                Today
+              </button>
+            )}
+            {mode === 'games' && (
               <SportFilter
                 options={sportsOnMap}
                 selected={selectedSports}
@@ -156,8 +186,12 @@ function VenueMap() {
           {mode === 'games' && (
             <div className="venue-map-legend">
               <span className="legend-dot legend-dot-game" /> {gamesByVenueId.size} with games
-              <span className="legend-dot legend-dot-venue" /> {plainVenues.length} places
-              {myPosition && (
+              {!onlyToday && (
+                <>
+                  <span className="legend-dot legend-dot-venue" /> {plainVenues.length} places
+                </>
+              )}
+              {myPosition && !onlyToday && (
                 <>
                   <span className="legend-dot legend-dot-walkable" /> {walkableCount} within{' '}
                   {formatSettingDistance(walkableKm)}
@@ -282,6 +316,12 @@ function VenueMap() {
               }}
             />
           </div>
+        ) : onlyToday ? (
+          <p className="venue-map-hint">
+            {gamesByVenueId.size > 0
+              ? 'Tap a purple dot to join a game today'
+              : 'No games today yet. Turn off Today to start one'}
+          </p>
         ) : (
           <p className="venue-map-hint">Tap a dot to join a game or start one</p>
         )}
